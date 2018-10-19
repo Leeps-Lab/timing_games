@@ -1,5 +1,14 @@
 <!-- webview for timing games
 significant code taken from bimatrix
+
+  todo: add titles for different webcomponents
+        implement payoff payoff function
+        figure out groupDecisions
+        ask morgan about bubbles graph parameters
+        change one of the player colors
+        add an outline on the payoff graph
+        in config add average payoff option
+        setup export
 -->
 
 <link
@@ -44,6 +53,7 @@ significant code taken from bimatrix
             my-decision='{{ myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
             duration='120'
+            enable-payoff-landscape
             others-bubbles='payoff'
             >
         </polymer-bubbles>
@@ -61,8 +71,8 @@ significant code taken from bimatrix
         initial-decision="[[ initialDecision ]]"
         my-decision="{{ myPlannedDecision }}"
         my-current-decision="{{ myDecision }}"
-        max-per-second="10"
-        on-group-decisions-changed="_onGroupDecisionsChanged">
+        group-decisions="{{ groupDecisions }}"
+        max-per-second="10">
     </redwood-decision>
 </template>
 
@@ -76,9 +86,13 @@ significant code taken from bimatrix
           myDecision: {
               type: Number,
           },
+          groupDecisions: {
+              type: Object,
+              observer: '_gd_obs'
+          },
           otherDecisions: {
               type: Array,
-              computed: '_onGroupDecisionsChanged()',
+              computed: "_getOtherDecisions(groupDecisions)",
           },
           periodLength: Number,
 
@@ -102,17 +116,44 @@ significant code taken from bimatrix
           this.myDecision = this.initialDecision;
       },
       getPayoff(myDecision, otherDecisions) {
+          // v(q) * u(t)
+          // v(q) is either a distribution or pre-emption game type thing
+          // u(t) is some function of time
+          // set in configs
           return 25;
       },
-      _onGroupDecisionsChanged() {
-          var dec = [];
-          for (var id in this.$.groupDecisions) {
-              if(id.localeCompare(this.$.constants.idInGroup) != 0) {
-                  dec.push(this.$.groupDecisions[id]);
+
+      // returns a dictionary of positions from highest to lowest
+      getPositions() {
+          var dec = {};
+
+          for (var i = 0; i < Object.keys(this.groupDecisions).length; i++) {
+              var highest = 0;
+              for(var pcode in this.groupDecisions) {
+                  if(this.groupDecisions[pcode] >= highest) {
+                      highest = pcode;
+                  }
               }
+              dec[pcode] = i;
           }
           return dec;
       },
+
+      _getOtherDecisions(groupDecisions) {
+          var dec = [];
+          for (var pcode in groupDecisions) {
+              if(this.$.constants.participantCode != pcode) {
+                  dec.push(groupDecisions[pcode]);
+              }
+          }
+
+          console.log("groupDecisions: " + groupDecisions);
+          console.log("dec: " + dec);
+          return dec;
+      },
+      _gd_obs(groupDecisions) {
+        console.log(groupDecisions);
+      }
     })
 </script>
 
