@@ -69,8 +69,7 @@ significant code taken from bimatrix
 
     <redwood-decision
         initial-decision="[[ initialDecision ]]"
-        my-decision="{{ myPlannedDecision }}"
-        my-current-decision="{{ myDecision }}"
+        my-decision="{{ myDecision }}"
         group-decisions="{{ groupDecisions }}"
         max-per-second="10">
     </redwood-decision>
@@ -88,7 +87,6 @@ significant code taken from bimatrix
           },
           groupDecisions: {
               type: Object,
-              observer: '_gd_obs'
           },
           otherDecisions: {
               type: Array,
@@ -138,7 +136,6 @@ significant code taken from bimatrix
           }
           return dec;
       },
-
       _getOtherDecisions(groupDecisions) {
           var dec = [];
           for (var pcode in groupDecisions) {
@@ -147,13 +144,8 @@ significant code taken from bimatrix
               }
           }
 
-          console.log("groupDecisions: " + groupDecisions);
-          console.log("dec: " + dec);
           return dec;
       },
-      _gd_obs(groupDecisions) {
-        console.log(groupDecisions);
-      }
     })
 </script>
 
