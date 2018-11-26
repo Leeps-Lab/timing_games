@@ -1,11 +1,4 @@
-<<<<<<< HEAD
 round,period_length,constantA,constantB
 1,60,100,100
 2,60,0,200
 3,60,200,0
-=======
-round,period_length
-1,60
-2,60
-3,60
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726

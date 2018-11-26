@@ -3,20 +3,11 @@ significant code taken from bimatrix
 
   todo: add titles for different webcomponents
         implement payoff payoff function
-<<<<<<< HEAD
         change one of the player colors
         add an outline on the payoff graph
         in config add average payoff options
         setup export
         numeric payoff display for current and previous period
-=======
-        figure out groupDecisions
-        ask morgan about bubbles graph parameters
-        change one of the player colors
-        add an outline on the payoff graph
-        in config add average payoff option
-        setup export
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
 -->
 
 <link
@@ -74,11 +65,7 @@ significant code taken from bimatrix
         on-period-start="_onPeriodStart"
         on-period-end="_onPeriodEnd">
     </redwood-period>
-<<<<<<< HEAD
-    
-=======
 
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
     <redwood-decision
         initial-decision="[[ initialDecision ]]"
         my-decision="{{ myDecision }}"
@@ -96,15 +83,12 @@ significant code taken from bimatrix
           },
           myDecision: {
               type: Number,
-<<<<<<< HEAD
               value: 0,
           },
           myPosition: {
               type: Number,
               value: 0,
               computed: "_getMyPosition(myDecision, groupDecisions)",
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
           },
           groupDecisions: {
               type: Object,
@@ -113,15 +97,12 @@ significant code taken from bimatrix
               type: Array,
               computed: "_getOtherDecisions(groupDecisions)",
           },
-<<<<<<< HEAD
           constantA: {
               type: Number,
           },
           constantB: {
               type: Number,
           },
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
           periodLength: Number,
 
           // set by redwood-period
@@ -135,18 +116,13 @@ significant code taken from bimatrix
           _payoffFunction: {
               type: Object,
               value: function() {
-<<<<<<< HEAD
                   return () => {};
-=======
-                  return this.getPayoff;
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
               },
           },
       },
       ready() {
           this.$$('polymer-bubbles').roundStart();
           this.myDecision = this.initialDecision;
-<<<<<<< HEAD
 
           const constantA = this.constantA;
           const constantB = this.constantB;
@@ -198,32 +174,6 @@ significant code taken from bimatrix
           return dec[this.$.constants.participantCode];
       },
 
-=======
-      },
-      getPayoff(myDecision, otherDecisions) {
-          // v(q) * u(t)
-          // v(q) is either a distribution or pre-emption game type thing
-          // u(t) is some function of time
-          // set in configs
-          return 25;
-      },
-
-      // returns a dictionary of positions from highest to lowest
-      getPositions() {
-          var dec = {};
-
-          for (var i = 0; i < Object.keys(this.groupDecisions).length; i++) {
-              var highest = 0;
-              for(var pcode in this.groupDecisions) {
-                  if(this.groupDecisions[pcode] >= highest) {
-                      highest = pcode;
-                  }
-              }
-              dec[pcode] = i;
-          }
-          return dec;
-      },
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
       _getOtherDecisions(groupDecisions) {
           var dec = [];
           for (var pcode in groupDecisions) {

@@ -1,13 +1,6 @@
 {% extends "global/Page.html" %}
 {% load staticfiles otree_tags %}
 
-<<<<<<< HEAD
-=======
-{% block title %}
-    Your Choice
-{% endblock %}
-
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
 {% block scripts %}
     <script>
      	var oTree = oTree || {};
@@ -38,11 +31,8 @@
     <timing-games
         initial-decision='{{ player.initial_decision }}'
         period-length='{{ player.group.period_length }}'
-<<<<<<< HEAD
         constant-a='{{ player.group.constantA }}'
         constant-b='{{ player.group.constantB }}'
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
         >
     </timing-games>
 

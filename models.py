@@ -11,10 +11,7 @@ doc = """
 This is a configurable timing game.
 """
 
-<<<<<<< HEAD
 """In the config, form = 1 if the game type is a pre-emption game, 2 if it is a war of attrition"""
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
 
 class Constants(BaseConstants):
     name_in_url = 'timing_games'
@@ -33,11 +30,8 @@ def parse_config(config_file):
     for row in rows:
         rounds.append({
             'period_length': int(row['period_length']),
-<<<<<<< HEAD
             'constantA': int(row['constantA']),
             'constantB': int(row['constantB']),
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
         })
     return rounds
 
@@ -56,7 +50,6 @@ class Group(DecisionGroup):
     def period_length(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['period_length']
 
-<<<<<<< HEAD
     def constantA(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['constantA']
 
@@ -77,15 +70,10 @@ class Group(DecisionGroup):
                 return 200
         return decision * position * 100"""
 
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
 class Player(BasePlayer):
 
     def initial_decision(self):
         return random.random()
-<<<<<<< HEAD
 
     """def set_payoff(self):
         return calc_payoff(self)"""
-=======
->>>>>>> 19ac99646370aacfa45991abd49587b850e36726
