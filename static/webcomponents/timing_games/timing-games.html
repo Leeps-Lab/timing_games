@@ -2,12 +2,12 @@
 significant code taken from bimatrix
 
   todo: add titles for different webcomponents
-        implement payoff payoff function
-        change one of the player colors
         add an outline on the payoff graph
-        in config add average payoff options
         setup export
         numeric payoff display for current and previous period
+        add grid lines to bubbles and payoff graphs
+        add payoff splitting for ties
+        add config option to turn off payoff landscape
 -->
 
 <link
@@ -47,10 +47,11 @@ significant code taken from bimatrix
 <template>
     <div>
         <polymer-bubbles
-            max-payoff='400'
+            max-payoff='120'
             other-decisions='[[ otherDecisions ]]'
             my-decision='{{ myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
+            constant-a='[[ constantA ]]'
             duration='120'
             enable-payoff-landscape
             others-bubbles='payoff'
@@ -83,12 +84,6 @@ significant code taken from bimatrix
           },
           myDecision: {
               type: Number,
-              value: 0,
-          },
-          myPosition: {
-              type: Number,
-              value: 0,
-              computed: "_getMyPosition(myDecision, groupDecisions)",
           },
           groupDecisions: {
               type: Object,
@@ -127,51 +122,64 @@ significant code taken from bimatrix
           const constantA = this.constantA;
           const constantB = this.constantB;
           this._payoffFunction = function(myDecision, otherDecisions) {
-            // v(q) * u(t)
-            // v(q) is either a distribution or pre-emption game type thing
-            // u(t) is some function of time
-            // set in configs
-            console.log(constantA, constantB);
             var pos = 1;
-            for(var i = 0; i < 3; i++) {
+            var tie = 0;
+            var numPlayers = otherDecisions.length + 1;
+            for(var i = 0; i < otherDecisions.length; i++) {
                 if(otherDecisions[i] < myDecision) {
                     pos++;
                 }
+                if(otherDecisions[i] == myDecision) {
+                    tie += 1;
+                }
             }
 
+            if(tie > 0) {
+                var ux = 1 + (2 * constantA * myDecision) - (myDecision * myDecision);
+                var vy = 0;
+                for(var i = 0; i <= tie; i++) {
+                    vy += ((1 - ((pos - 0.5 + i)/numPlayers)/constantB) * (1 + ((pos - 0.5 + i)/numPlayers)/3));
+                }
+                vy = vy/(tie + 1);
+                return ux * vy;
+            }
+            else {
+                var ux = 1 + (2 * constantA * myDecision) - (myDecision * myDecision);
+                var vy = (1 - ((pos - 0.5)/numPlayers)/constantB) * (1 + ((pos - 0.5)/numPlayers)/3);
+                return ux * vy;
+            }
 
+            /*
+            if(tie >= 1) {
+                return ((constantA * myDecision * (1 - constantB * myDecision)) * (constantC * (pos + tie)/(tie * numPlayers) * (1 - constantD * (pos + tie)/(tie * numPlayers))) + 10);
+            }
+            else {
+                return ((constantA * myDecision * (1 - constantB * myDecision)) * (constantC * pos/numPlayers * (1 - constantD * pos/numPlayers)) + 10);
+            } */
+
+            /*
+            if(tie > 1) {
+                if(pos == 1 && constantA > 0) {
+                    return (myDecision * constantA)/(tie) + 10;
+                }
+                if(constantB > 0 && (pos + tie - 1) == (numPlayers)) {
+                    return ((1- myDecision) * constantB)/(tie) + 10;
+                }
+            }
             if(pos == 1) {
                 return myDecision * constantA + 10;
             }
-            else if(pos == 4) {
+            else if(pos == (numPlayers)) {
                 return (1 - myDecision) * constantB + 10;
             }
             else {
                 return 10;
-            }
+            } */
           }
       },
 
       getPayoff(myDecision, otherDecisions) {
 
-      },
-
-      // returns a dictionary of positions from lowest to highest
-      _getMyPosition(myDecision, groupDecisions) {
-          var dec = {};
-          var lowcode;
-          for(var i = 1; i <= 4; i++) {
-              var lowest = 1;
-              for(var pcode in groupDecisions) {
-                  if(groupDecisions[pcode] <= lowest && dec[pcode] == undefined) {
-                      lowest = groupDecisions[pcode];
-                      lowcode = pcode;
-                  }
-              }
-              dec[lowcode] = i;
-          }
-          console.log(dec);
-          return dec[this.$.constants.participantCode];
       },
 
       _getOtherDecisions(groupDecisions) {

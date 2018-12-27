@@ -21,6 +21,9 @@
             otherDecisions: {
                 type: Number,
             },
+            constantA: {
+                type: Number,
+            },
             duration: {
                 type: Number,
             },
@@ -41,7 +44,7 @@
                 this.canvas.height = this.height;
 
                 this.yMin = 0;
-                this.yMax = 1;
+                this.yMax = this.constantA * 2 + 1;
                 this.yRange = this.yMax - this.yMin;
                 this.yScale = this.height / this.yRange;
 

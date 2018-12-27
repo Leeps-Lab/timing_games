@@ -2,6 +2,7 @@ import csv
 import random
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import FloatField
 from otree.constants import BaseConstants
 from otree.models import BasePlayer, BaseSubsession
 
@@ -10,8 +11,6 @@ from otree_redwood.models import Event, DecisionGroup
 doc = """
 This is a configurable timing game.
 """
-
-"""In the config, form = 1 if the game type is a pre-emption game, 2 if it is a war of attrition"""
 
 class Constants(BaseConstants):
     name_in_url = 'timing_games'
@@ -30,6 +29,7 @@ def parse_config(config_file):
     for row in rows:
         rounds.append({
             'period_length': int(row['period_length']),
+            'players_per_group': int(row['players_per_group']),
             'constantA': int(row['constantA']),
             'constantB': int(row['constantB']),
         })
@@ -41,6 +41,18 @@ class Subsession(BaseSubsession):
         config = parse_config(self.session.config['config_file'])
         if self.round_number > len(config):
             return
+
+    def creating_session(self):
+        config = parse_config(self.session.config['config_file'])
+        if self.round_number > len(config):
+            return
+        group_matrix = []
+        players = self.get_players()
+        ppg = parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']
+        for i in range(0, len(players), ppg):
+            group_matrix.append(players[i:i+ppg])
+        self.set_group_matrix(group_matrix)
+
 
 class Group(DecisionGroup):
 
@@ -56,24 +68,14 @@ class Group(DecisionGroup):
     def constantB(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['constantB']
 
-    """def calc_payoff(self, player):
-        decision = self.groupDecisions[player.participant.code]
-        position = 0
-        for dec in self.groupDecisions:
-            if groupDecisions[dec] >= decision:
-                position = position + 1
-        if(self.form == 1):
-            if(position == 1):
-                return 100
-        if(self.form == 2):
-            if(position == len(self.get_players())):
-                return 200
-        return decision * position * 100"""
-
 class Player(BasePlayer):
+    init_decision = FloatField(null=True)
 
     def initial_decision(self):
-        return random.random()
+        if not self.init_decision:
+            self.init_decision = random.random() * (parse_config(self.session.config['config_file'])[self.round_number-1]['constantA'] * 2 + 1)
+            self.save()
+        return self.init_decision
 
     """def set_payoff(self):
         return calc_payoff(self)"""

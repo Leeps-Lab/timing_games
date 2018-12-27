@@ -61,6 +61,7 @@
                     <strategy-graph
                         my-decision='[[ myDecision ]]'
                         other-decisions='[[ otherDecisions ]]'
+                        constant-a='[[ constantA ]]'
                         duration='[[ duration ]]'>
                     </strategy-graph>
                 </div>
@@ -74,6 +75,7 @@
                         other-decisions='[[ otherDecisions ]]'
                         max-payoff='[[ maxPayoff ]]'
                         payoff-function='[[ payoffFunction ]]'
+                        constant-a='[[ constantA ]]'
                         my-decision='[[ myDecision ]]'
                         others-bubbles='[[ othersBubbles ]]'
                         enable-payoff-landscape>
@@ -98,7 +100,7 @@
                         id="slider"
                         type="range"
                         min="0"
-                        max="1"
+                        max='[[ sliderMax ]]'
                         step="0.01"
                         on-change="_sliderValueChanged">
                 </div>
@@ -126,6 +128,12 @@
                     };
                 },
             },
+            constantA: {
+                type: Number,
+            },
+            sliderMax: {
+                type: Number,
+            },
             myDecision: {
                 type: Number,
                 notify: true,
@@ -148,6 +156,7 @@
             this.payoff_graph = this.$$('payoff-graph');
             this.strategy_graph = this.$$('strategy-graph');
 
+            this.sliderMax = 2 * this.constantA + 1;
             this.slider.value = this.myDecision;
         },
         roundStart() {

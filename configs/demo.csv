@@ -1,4 +1,4 @@
-round,period_length,constantA,constantB
-1,60,100,100
-2,60,0,200
-3,60,200,0
+round,period_length,players_per_group,constantA,constantB
+1,15,4,10,3
+2,15,4,10,4
+3,15,4,10,5

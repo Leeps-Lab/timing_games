@@ -29,6 +29,9 @@
             payoffFunction: {
                 type: Object,
             },
+            constantA: {
+                type: Number,
+            },
             enablePayoffLandscape: {
                 type: Boolean,
                 value: false,
@@ -53,8 +56,8 @@
                 this.canvas.width = this.width;
                 this.canvas.height = this.height;
 
-                this.xMin = -0.06;
-                this.xMax = 1.02;
+                this.xMin = 0 - ((2 * this.get('constantA') + 1) * 0.06);
+                this.xMax = (2 * this.get('constantA') + 1) + 0.05;
                 this.xRange = this.xMax - this.xMin;
                 this.yMin = 0 - this.maxPayoff * 0.1;
                 this.yMax = this.maxPayoff * 1.05;
@@ -110,7 +113,7 @@
             const numSamples = this.width;
             const interval = this.xMax / numSamples;
             ctx.moveTo(0, payoffFunction(0, otherDecisions));
-            for(let x = 0 + interval; x < 1; x += interval) {
+            for(let x = 0 + interval; x < this.xMax; x += interval) {
                 const y = payoffFunction(x, otherDecisions);
                 ctx.lineTo(x, y);
             }
@@ -186,11 +189,11 @@
             ctx.beginPath();
             this._transformContext();
             ctx.moveTo(0, 0);
-            ctx.lineTo(1, 0);
+            ctx.lineTo((this.get('constantA') * 2 + 1), 0);
             ctx.restore();
             ctx.stroke()
 
-            const tickInterval = 0.1;
+            const tickInterval = (this.get('constantA') * 2 + 1)/10;
             const tickWidth = 10;
             const tickStartY = this.yMax * this.yScale;
             const tickEndY = tickStartY + tickWidth;
@@ -200,7 +203,7 @@
             ctx.textBaseline = 'top';
 
             let curTick = 0;
-            while (curTick <= 1) {
+            while (curTick <= this.xMax) {
                 let x = (curTick - this.xMin) * this.xScale;
                 ctx.moveTo(x, tickStartY);
                 ctx.lineTo(x, tickEndY);
