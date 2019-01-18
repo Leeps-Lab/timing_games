@@ -14,7 +14,7 @@ This is a configurable timing game.
 
 class Constants(BaseConstants):
     name_in_url = 'timing_games'
-    players_per_group = 4
+    players_per_group = None
 	# Maximum number of rounds, actual number is taken as the max round
 	# in the config file.
     num_rounds = 100
@@ -30,8 +30,13 @@ def parse_config(config_file):
         rounds.append({
             'period_length': int(row['period_length']),
             'players_per_group': int(row['players_per_group']),
+            'enable_payoff_landscape': True if row['enablePayoffLandscape'] == 'TRUE' else False,
+            'others_bubbles': str(row['others_bubbles']),
             'constantA': int(row['constantA']),
-            'constantB': int(row['constantB']),
+            'constantB': float(row['constantB']),
+            'constantC': float(row['constantC']),
+            'constantH': int(row['constantH']),
+            'updateRate': int(row['updateRate']),
         })
     return rounds
 
@@ -53,6 +58,15 @@ class Subsession(BaseSubsession):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
 
+    def enable_payoff_landscape(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['enable_payoff_landscape']
+
+    def others_bubbles(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['others_bubbles']
+
+    def players_per_group(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']
+
 
 class Group(DecisionGroup):
 
@@ -67,6 +81,22 @@ class Group(DecisionGroup):
 
     def constantB(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['constantB']
+
+    def constantC(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['constantC']
+
+    def constantH(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['constantH']
+
+    def updateRate(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['updateRate']
+
+    def maxPayoff(self):
+        sliderMax = 1 + 2 * self.constantA()
+        numPlayers = len(self.get_players())
+        ux = 1 + (2 * self.constantA() * (sliderMax)/2) - ((sliderMax/2) ** 2)
+        uy = (1 - (((numPlayers/2 - 0.5)/numPlayers)/self.constantB())) * (1 + ((numPlayers/2 - 0.5)/numPlayers)/self.constantC())
+        return ux * uy
 
 class Player(BasePlayer):
     init_decision = FloatField(null=True)

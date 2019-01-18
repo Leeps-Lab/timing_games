@@ -1,4 +1,4 @@
-round,period_length,players_per_group,constantA,constantB
-1,15,4,10,3
-2,15,4,10,4
-3,15,4,10,5
+round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,constantA,constantB,constantC,constantH
+1,120,10,TRUE,payoff,500,10,3,3,10
+2,60,4,TRUE,strategy,250,10,3,3,10
+3,60,4,TRUE,none,1000,10,3,3,10

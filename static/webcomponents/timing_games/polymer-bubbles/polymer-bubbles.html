@@ -42,7 +42,7 @@
 
         #slider {
             position: absolute;
-            width: 95%;
+            width: 94%;
             left: 24px;
             top: 20px;
         }
@@ -75,10 +75,14 @@
                         other-decisions='[[ otherDecisions ]]'
                         max-payoff='[[ maxPayoff ]]'
                         payoff-function='[[ payoffFunction ]]'
+                        update-rate='[[ updateRate ]]'
+                        num-players='[[ numPlayers ]]'
                         constant-a='[[ constantA ]]'
+                        constant-h='[[ constantH ]]'
                         my-decision='[[ myDecision ]]'
                         others-bubbles='[[ othersBubbles ]]'
-                        enable-payoff-landscape>
+                        enable-payoff-landscape='[[ enablePayoffLandscape ]]'
+                        >
                     </bubbles-graph>
                 </div>
             </td>
@@ -128,7 +132,20 @@
                     };
                 },
             },
+            updateRate: {
+                type: Number,
+            },
             constantA: {
+                type: Number,
+            },
+            constantH: {
+                type: Number,
+            },
+            enablePayoffLandscape: {
+                type: Boolean,
+                value: false,
+            },
+            numPlayers: {
                 type: Number,
             },
             sliderMax: {

@@ -31,8 +31,17 @@
     <timing-games
         initial-decision='{{ player.initial_decision }}'
         period-length='{{ player.group.period_length }}'
+        {% if player.subsession.enable_payoff_landscape %}
+        enable-payoff-landscape
+        {% endif %}
+        others-bubbles='{{ player.subsession.others_bubbles }}'
+        update-rate='{{ player.group.updateRate }}'
+        max-payoff='{{ player.group.maxPayoff }}'
+        players-per-group='{{ player.subsession.players_per_group }}'
         constant-a='{{ player.group.constantA }}'
         constant-b='{{ player.group.constantB }}'
+        constant-c='{{ player.group.constantC }}'
+        constant-h='{{ player.group.constantH }}'
         >
     </timing-games>
 
