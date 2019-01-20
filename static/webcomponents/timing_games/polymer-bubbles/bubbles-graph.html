@@ -32,6 +32,12 @@
             updateRate: {
                 type: Number,
             },
+            displayLower: {
+                type: Number,
+            },
+            displayUpper: {
+                type: Number,
+            },
             constantA: {
                 type: Number,
             },
@@ -101,10 +107,20 @@
             });
 
             for(let i = 0; i < 598; i++) {
-                const val = (i/this.maxPayoff) * (this.get("constantA") * 2 + 1);
+                let val;
+                if(i < this.get('displayLower')/(this.get('constantA') * 2 + 1) * 598) {
+                    val = 0;
+                }
+                else if(i > this.get('displayUpper')/(this.get('constantA') * 2 + 1) * 598) {
+                    val = this.maxPayoff;
+                }
+                else {
+                    val = (i/this.maxPayoff) * (this.get("constantA") * 2 + 1);
+                }
                 this.push('pixelValues', val);
             }
 
+            /*
             for(let i = 0; i < this.get('numPlayers') - 1; i++) {
                 let arr = [];
                 for(let j = 0; j < 598; j++) {
@@ -112,7 +128,7 @@
                     arr.push(val);
                 }
                 this.push('othersPixelValues', arr);
-            }
+            }*/
 
         },
         roundStart() {
@@ -203,17 +219,18 @@
                 if (this.othersBubbles === 'payoff') {
                     let otherDecisionsForOpponent = otherDecisions.slice();
                     otherDecisionsForOpponent.splice(i, 1, this.myDecision);
+                    /*
                     if(this.get('updateLandscape')) {
                         for(let x = 0; x < 598; x++) {
                             const val = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("othersPixelValues")[i][x];
                             this.othersPixelValues[i][x] = val;
                         }
-                    }
+                    }*/
                     //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
                     const otherSliderPosition = Math.round((otherDecisions[i]/(2 * this.get('constantA') + 1) * 598) * 0.97);
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
-                    payoff = this.get("othersPixelValues")[i][otherSliderPosition];
+                    payoff = this.get("pixelValues")[otherSliderPosition];
                 }
                 ctx.beginPath();
                 const x = (otherDecisions[i] - this.xMin) * this.xScale;

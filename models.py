@@ -37,6 +37,8 @@ def parse_config(config_file):
             'constantC': float(row['constantC']),
             'constantH': int(row['constantH']),
             'updateRate': int(row['updateRate']),
+            'displayLower': float(row['displayLower']),
+            'displayUpper': float(row['displayUpper']),
         })
     return rounds
 
@@ -90,6 +92,12 @@ class Group(DecisionGroup):
 
     def updateRate(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['updateRate']
+
+    def displayLower(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['displayLower']
+
+    def displayUpper(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['displayUpper']
 
     def maxPayoff(self):
         sliderMax = 1 + 2 * self.constantA()

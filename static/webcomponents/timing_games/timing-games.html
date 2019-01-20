@@ -58,6 +58,8 @@ significant code taken from bimatrix
             others-bubbles='[[ othersBubbles ]]'
             update-rate='[[ updateRate ]]'
             num-players='[[ playersPerGroup ]]'
+            display-lower='[[ displayLower ]]'
+            display-upper='[[ displayUpper ]]'
             >
         </polymer-bubbles>
     </div>
@@ -106,6 +108,12 @@ significant code taken from bimatrix
               type: Number,
           },
           playersPerGroup: {
+              type: Number,
+          },
+          displayLower: {
+              type: Number,
+          },
+          displayUpper: {
               type: Number,
           },
           constantA: {

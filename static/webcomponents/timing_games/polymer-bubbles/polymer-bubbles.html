@@ -82,6 +82,8 @@
                         my-decision='[[ myDecision ]]'
                         others-bubbles='[[ othersBubbles ]]'
                         enable-payoff-landscape='[[ enablePayoffLandscape ]]'
+                        display-lower='[[ displayLower ]]'
+                        display-upper='[[ displayUpper ]]'
                         >
                     </bubbles-graph>
                 </div>
@@ -133,6 +135,12 @@
                 },
             },
             updateRate: {
+                type: Number,
+            },
+            displayLower: {
+                type: Number,
+            },
+            displayUpper: {
                 type: Number,
             },
             constantA: {
