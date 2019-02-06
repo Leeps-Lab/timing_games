@@ -1,44 +1,16 @@
-{% extends "global/Page.html" %}
+{% extends "otree_redwood/Page.html" %}
 {% load staticfiles otree_tags %}
 
 {% block scripts %}
-<script>
-var oTree = oTree || {};
-(function() {
-  oTree.group = {};
-  oTree.group.pk = parseInt("{{ player.group.pk }}");
-  oTree.group.pk = isNaN(oTree.group.pk) ? null : oTree.group.pk;
-  oTree.group.players = [];
-  let id_in_group, payoff;
-  {% for p in player.group.get_players %}
-    id_in_group = parseInt("{{ p.id_in_group }}");
-    payoff = parseFloat("{{ p.payoff }}")
-    oTree.group.players.push({
-      participantCode: "{{ p.participant.code}}",
-      role: "{{ p.role }}",
-      id_in_group: isNaN(id_in_group) ? null : id_in_group,
-      payoff: isNaN(payoff) ? null : payoff,
-    });
-  {% endfor %}
-  oTree.role = "{{ player.role }}";
-  oTree.participantCode = "{{ player.participant.code }}";
-  oTree.appName = "{{ subsession.app_name }}";
-  oTree.idInGroup = "{{ player.id_in_group }}";
-  oTree.role = "{{ player.role }}";
-  oTree.csrfToken = "{{ csrf_token }}";
-  {% if view.is_debug %}
-  oTree.debug = true;
-  {% else %}
-  oTree.debug = false;
-  {% endif %}
-})();
-</script>
-
     <script src="//code.highcharts.com/highcharts.js"></script>
 
     <link
         rel="import"
         href="{% static "webcomponents/timing_games/timing-games.html" %}">
+{% endblock %}
+
+{% block title %}
+    Your Choice
 {% endblock %}
 
 {% block content %}
@@ -52,11 +24,15 @@ var oTree = oTree || {};
         update-rate='{{ player.group.updateRate }}'
         max-payoff='{{ player.group.maxPayoff }}'
         players-per-group='{{ player.subsession.players_per_group }}'
+        x-min='{{ player.group.xMin }}'
+        x-max='{{ player.group.xMax }}'
+        y-min='{{ player.group.yMin }}'
+        y-max='{{ player.group.yMax }}'
         display-lower='{{ player.group.displayLower }}'
         display-upper='{{ player.group.displayUpper }}'
-        constant-a='{{ player.group.constantA }}'
-        constant-b='{{ player.group.constantB }}'
-        constant-c='{{ player.group.constantC }}'
+        lambda='{{ player.group.constantLambda }}'
+        gamma='{{ player.group.gamma }}'
+        rho='{{ player.group.rho }}'
         constant-h='{{ player.group.constantH }}'
         >
     </timing-games>

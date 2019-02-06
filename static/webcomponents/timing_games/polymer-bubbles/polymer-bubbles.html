@@ -61,7 +61,7 @@
                     <strategy-graph
                         my-decision='[[ myDecision ]]'
                         other-decisions='[[ otherDecisions ]]'
-                        constant-a='[[ constantA ]]'
+                        constant-a='[[ lambda ]]'
                         duration='[[ duration ]]'>
                     </strategy-graph>
                 </div>
@@ -73,15 +73,18 @@
                 <div class="bottomrow">
                     <bubbles-graph
                         other-decisions='[[ otherDecisions ]]'
-                        max-payoff='[[ maxPayoff ]]'
+                        min-payoff='[[ yMin ]]'
+                        max-payoff='[[ yMax ]]'
                         payoff-function='[[ payoffFunction ]]'
                         update-rate='[[ updateRate ]]'
                         num-players='[[ numPlayers ]]'
-                        constant-a='[[ constantA ]]'
+                        lambda='[[ lambda ]]'
                         constant-h='[[ constantH ]]'
                         my-decision='[[ myDecision ]]'
                         others-bubbles='[[ othersBubbles ]]'
                         enable-payoff-landscape='[[ enablePayoffLandscape ]]'
+                        min-x='[[ xMin ]]'
+                        max-x='[[ xMax ]]'
                         display-lower='[[ displayLower ]]'
                         display-upper='[[ displayUpper ]]'
                         >
@@ -105,8 +108,8 @@
                     <input
                         id="slider"
                         type="range"
-                        min="0"
-                        max='[[ sliderMax ]]'
+                        min='[[ xMin ]]'
+                        max='[[ xMax ]]'
                         step="0.01"
                         on-change="_sliderValueChanged">
                 </div>
@@ -137,13 +140,25 @@
             updateRate: {
                 type: Number,
             },
+            xMin: {
+                type: Number,
+            },
+            xMax: {
+                type: Number,
+            },
+            yMin: {
+                type: Number,
+            },
+            yMax: {
+                type: Number,
+            },
             displayLower: {
                 type: Number,
             },
             displayUpper: {
                 type: Number,
             },
-            constantA: {
+            lambda: {
                 type: Number,
             },
             constantH: {
@@ -181,7 +196,7 @@
             this.payoff_graph = this.$$('payoff-graph');
             this.strategy_graph = this.$$('strategy-graph');
 
-            this.sliderMax = 2 * this.constantA + 1;
+            this.sliderMax = 2 * this.lambda + 1;
             this.slider.value = this.myDecision;
         },
         roundStart() {

@@ -51,13 +51,17 @@ significant code taken from bimatrix
             other-decisions='[[ otherDecisions ]]'
             my-decision='{{ myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
-            constant-a='[[ constantA ]]'
+            lambda='[[ lambda ]]'
             constant-h='[[ constantH ]]'
             duration='[[ periodLength ]]'
             enable-payoff-landscape='[[ enablePayoffLandscape ]]'
             others-bubbles='[[ othersBubbles ]]'
             update-rate='[[ updateRate ]]'
             num-players='[[ playersPerGroup ]]'
+            x-min='[[ xMin ]]'
+            x-max='[[ xMax ]]'
+            y-min='[[ yMin ]]'
+            y-max='[[ yMax ]]'
             display-lower='[[ displayLower ]]'
             display-upper='[[ displayUpper ]]'
             >
@@ -110,19 +114,31 @@ significant code taken from bimatrix
           playersPerGroup: {
               type: Number,
           },
+          xMin: {
+              type: Number,
+          },
+          xMax: {
+              type: Number,
+          },
+          yMin: {
+              type: Number,
+          },
+          yMax: {
+              type: Number,
+          },
           displayLower: {
               type: Number,
           },
           displayUpper: {
               type: Number,
           },
-          constantA: {
+          lambda: {
               type: Number,
           },
-          constantB: {
+          gamma: {
               type: Number,
           },
-          constantC: {
+          rho: {
               type: Number,
           },
           constantH: {
@@ -152,9 +168,9 @@ significant code taken from bimatrix
           this.$$('polymer-bubbles').roundStart();
           this.myDecision = this.initialDecision;
 
-          const constantA = this.constantA;
-          const constantB = this.constantB;
-          const constantC = this.constantC;
+          const lambda = this.lambda;
+          const gamma = this.gamma;
+          const rho = this.rho;
           this._payoffFunction = function(myDecision, otherDecisions) {
             var pos = 1;
             var tie = 0;
@@ -169,44 +185,44 @@ significant code taken from bimatrix
             }
 
             if(tie > 0) {
-                //max 1 + (2 * constantA * (1 + 2 * constantA)/2) - ((1 + 2 * constantA/2)^2)
-                var ux = 1 + (2 * constantA * myDecision) - (myDecision * myDecision);
+                //max 1 + (2 * lambda * (1 + 2 * lambda)/2) - ((1 + 2 * lambda/2)^2)
+                var ux = 1 + (2 * lambda * myDecision) - (myDecision * myDecision);
                 var vy = 0;
                 for(var i = 0; i <= tie; i++) {
-                    //max (1 - ((numPlayers - 0.5)/numPlayers)/constantB) * (1 + ((numPlayers - 0.5)/numPlayers)/constantC)
-                    vy += ((1 - ((pos - 0.5 + i)/numPlayers)/constantB) * (1 + ((pos - 0.5 + i)/numPlayers)/constantC));
+                    //max (1 - ((numPlayers - 0.5)/numPlayers)/gamma) * (1 + ((numPlayers - 0.5)/numPlayers)/rho)
+                    vy += ((1 - ((pos - 0.5 + i)/numPlayers)/gamma) * (1 + ((pos - 0.5 + i)/numPlayers)/rho));
                 }
                 vy = vy/(tie + 1);
                 return ux * vy;
             }
             else {
-                var ux = 1 + (2 * constantA * myDecision) - (myDecision * myDecision);
-                var vy = (1 - ((pos - 0.5)/numPlayers)/constantB) * (1 + ((pos - 0.5)/numPlayers)/constantC);
+                var ux = 1 + (2 * lambda * myDecision) - (myDecision * myDecision);
+                var vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho);
                 return ux * vy;
             }
 
             /*
             if(tie >= 1) {
-                return ((constantA * myDecision * (1 - constantB * myDecision)) * (constantC * (pos + tie)/(tie * numPlayers) * (1 - constantD * (pos + tie)/(tie * numPlayers))) + 10);
+                return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * (pos + tie)/(tie * numPlayers) * (1 - constantD * (pos + tie)/(tie * numPlayers))) + 10);
             }
             else {
-                return ((constantA * myDecision * (1 - constantB * myDecision)) * (constantC * pos/numPlayers * (1 - constantD * pos/numPlayers)) + 10);
+                return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * pos/numPlayers * (1 - constantD * pos/numPlayers)) + 10);
             } */
 
             /*
             if(tie > 1) {
-                if(pos == 1 && constantA > 0) {
-                    return (myDecision * constantA)/(tie) + 10;
+                if(pos == 1 && lambda > 0) {
+                    return (myDecision * lambda)/(tie) + 10;
                 }
-                if(constantB > 0 && (pos + tie - 1) == (numPlayers)) {
-                    return ((1- myDecision) * constantB)/(tie) + 10;
+                if(gamma > 0 && (pos + tie - 1) == (numPlayers)) {
+                    return ((1- myDecision) * gamma)/(tie) + 10;
                 }
             }
             if(pos == 1) {
-                return myDecision * constantA + 10;
+                return myDecision * lambda + 10;
             }
             else if(pos == (numPlayers)) {
-                return (1 - myDecision) * constantB + 10;
+                return (1 - myDecision) * gamma + 10;
             }
             else {
                 return 10;

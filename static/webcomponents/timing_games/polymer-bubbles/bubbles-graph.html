@@ -16,6 +16,9 @@
     Polymer({
         is: 'bubbles-graph',
         properties: {
+            minPayoff: {
+                type: Number,
+            },
             maxPayoff: {
                 type: Number,
             },
@@ -32,13 +35,19 @@
             updateRate: {
                 type: Number,
             },
+            minX: {
+                type: Number,
+            },
+            maxX: {
+                type: Number,
+            },
             displayLower: {
                 type: Number,
             },
             displayUpper: {
                 type: Number,
             },
-            constantA: {
+            lambda: {
                 type: Number,
             },
             constantD: {
@@ -90,11 +99,15 @@
                 this.canvas.width = this.width;
                 this.canvas.height = this.height;
 
-                this.xMin = 0 - ((2 * this.get('constantA') + 1) * 0.06);
-                this.xMax = (2 * this.get('constantA') + 1) * 1.03;
+                //this.xMin = 0 - ((2 * this.get('lambda') + 1) * 0.06);
+                this.xMin = this.get('minX') - ((this.get('maxX') - this.get('minX')) * 0.06);
+                //this.xMax = (2 * this.get('lambda') + 1) * 1.03;
+                this.xMax = this.get('maxX') + ((this.get('maxX') - this.get('minX')) * 0.03);
                 this.xRange = this.xMax - this.xMin;
-                this.yMin = 0 - this.maxPayoff * 0.1;
-                this.yMax = this.maxPayoff * 1.05;
+                //this.yMin = 0 - this.maxPayoff * 0.1;
+                this.yMin = this.get('minPayoff') - ((this.get('maxPayoff') - this.get('minPayoff')) * 0.1);
+                //this.yMax = this.maxPayoff * 1.05;
+                this.yMax = this.get('maxPayoff') + ((this.get('maxPayoff') - this.get('minPayoff')) * 0.03);
                 this.yRange = this.yMax - this.yMin;
 
                 this.xScale = this.width / this.xRange;
@@ -108,14 +121,14 @@
 
             for(let i = 0; i < 598; i++) {
                 let val;
-                if(i < this.get('displayLower')/(this.get('constantA') * 2 + 1) * 598) {
+                if(i < this.get('displayLower')/this.get('maxX') * 598) {
                     val = 0;
                 }
-                else if(i > this.get('displayUpper')/(this.get('constantA') * 2 + 1) * 598) {
+                else if(i > this.get('displayUpper')/this.get('maxX') * 598) {
                     val = this.maxPayoff;
                 }
                 else {
-                    val = (i/this.maxPayoff) * (this.get("constantA") * 2 + 1);
+                    val = (i/this.maxPayoff) * (this.get("maxX") * 2 + 1);
                 }
                 this.push('pixelValues', val);
             }
@@ -124,7 +137,7 @@
             for(let i = 0; i < this.get('numPlayers') - 1; i++) {
                 let arr = [];
                 for(let j = 0; j < 598; j++) {
-                    const val = (j/this.maxPayoff) * (this.get("constantA") * 2 + 1);
+                    const val = (j/this.maxPayoff) * (this.get("lambda") * 2 + 1);
                     arr.push(val);
                 }
                 this.push('othersPixelValues', arr);
@@ -227,7 +240,7 @@
                         }
                     }*/
                     //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
-                    const otherSliderPosition = Math.round((otherDecisions[i]/(2 * this.get('constantA') + 1) * 598) * 0.97);
+                    const otherSliderPosition = Math.round((otherDecisions[i]/(this.get('maxX')) * 598) * 0.97);
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
                     payoff = this.get("pixelValues")[otherSliderPosition];
@@ -264,7 +277,7 @@
 
             const radius = 8;
             //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
-            const mySliderPosition = Math.round((this.myDecision/(2 * this.get('constantA') + 1) * 598) * 0.97);
+            const mySliderPosition = Math.round((this.myDecision/(this.get('maxX')) * 598) * 0.97);
             //const myPayoff = (1 - this.get("constantD")) * payoffFunction(this.myDecision, otherDecisions) + this.get("constantD") * this.get("pixelValues")[mySliderPosition];
             const myPayoff = this.get("pixelValues")[mySliderPosition];
             const x = (this.myDecision - this.xMin) * this.xScale;
@@ -283,21 +296,21 @@
             ctx.save();
             ctx.beginPath();
             this._transformContext();
-            ctx.moveTo(0, 0);
-            ctx.lineTo((this.get('constantA') * 2 + 1), 0);
+            ctx.moveTo(this.get('minX'), this.get('minPayoff'));
+            ctx.lineTo(this.get('maxX'), this.get('minPayoff'));
             ctx.restore();
             ctx.stroke()
 
-            const tickInterval = (this.get('constantA') * 2 + 1)/10;
+            const tickInterval = (this.get('maxX') - this.get('minX'))/10;
             const tickWidth = 10;
-            const tickStartY = this.yMax * this.yScale;
+            const tickStartY = ((this.yMax - this.get('minPayoff')) * this.yScale);
             const tickEndY = tickStartY + tickWidth;
 
             ctx.beginPath();
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
 
-            let curTick = 0;
+            let curTick = this.get('minX');
             while (curTick <= this.xMax) {
                 let x = (curTick - this.xMin) * this.xScale;
                 ctx.moveTo(x, tickStartY);
@@ -316,14 +329,15 @@
             ctx.save();
             this._transformContext();
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, this.yMax);
+            ctx.moveTo(this.get('minX'), this.get('minPayoff'));
+            ctx.lineTo(this.get('minX'), this.get('maxPayoff'));
             ctx.restore();
             ctx.stroke();
 
             const tickInterval = this._getYTickInterval();
             const tickWidth = 10;
-            const tickStartX = -this.xMin * this.xScale;
+            //const tickStartX = -this.xMin * this.xScale;
+            const tickStartX = -(this.xMin - (this.get('minX'))) * this.xScale;
             const tickEndX = tickStartX - tickWidth;
 
             ctx.beginPath();
@@ -353,7 +367,7 @@
             }
 
             let interval = 10;
-            while (this.yMax / interval > maxNumTicks) {
+            while ((this.yMax - this.yMin) / interval > maxNumTicks) {
                 interval += 10;
             }
             return interval;
