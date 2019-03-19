@@ -32,7 +32,7 @@ def parse_config(config_file):
             'players_per_group': int(row['players_per_group']),
             'enable_payoff_landscape': True if row['enablePayoffLandscape'] == 'TRUE' else False,
             'others_bubbles': str(row['others_bubbles']),
-            'constantLambda': int(row['lambda']),
+            'lambda': int(row['lambda']),
             'gamma': float(row['gamma']),
             'rho': float(row['rho']),
             'constantH': int(row['constantH']),
@@ -64,6 +64,22 @@ class Subsession(BaseSubsession):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
 
+    def get_average_strategy(self):
+        players = self.get_players()
+        sum_strategies = 0
+        for p in players:
+            sum_strategies += p.get_average_strategy()
+        return sum_strategies / len(players)
+
+    def get_average_payoff(self):
+        players = self.get_players()
+        sum_payoffs = 0
+        for p in players:
+            if not p.payoff:
+                p.set_payoff()
+            sum_payoffs += p.payoff
+        return sum_payoffs / len(players)
+
     def enable_payoff_landscape(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['enable_payoff_landscape']
 
@@ -83,7 +99,7 @@ class Group(DecisionGroup):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['period_length']
 
     def constantLambda(self):
-        return parse_config(self.session.config['config_file'])[self.round_number-1]['constantLambda']
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['lambda']
 
     def gamma(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['gamma']
@@ -143,7 +159,28 @@ class Player(BasePlayer):
             self.save()
         return self.init_decision
 
-"""
+    def get_average_strategy(self):
+        decisions = list(Event.objects.filter(
+                channel='group_decisions',
+                content_type=ContentType.objects.get_for_model(self.group),
+                group_pk=self.group.pk).order_by("timestamp"))
+        try:
+            period_end = Event.objects.get(
+                    channel='state',
+                    content_type=ContentType.objects.get_for_model(self.group),
+                    group_pk=self.group.pk,
+                    value='period_end').timestamp
+        except Event.DoesNotExist:
+            return float('nan')
+        # sum of all decisions weighted by the amount of time that decision was held
+        weighted_sum_decision = 0
+        while decisions:
+            cur_decision = decisions.pop(0)
+            next_change_time = decisions[0].timestamp if decisions else period_end
+            decision_value = cur_decision.value[self.participant.code]
+            weighted_sum_decision += decision_value * (next_change_time - cur_decision.timestamp).total_seconds()
+        return weighted_sum_decision / self.group.period_length()
+
     def set_payoff(self):
         decisions = list(Event.objects.filter(
                 channel='decisions',
@@ -174,31 +211,36 @@ class Player(BasePlayer):
 
     def get_payoff(self, period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho):
         period_duration = period_end.timestamp - period_start.timestamp
-
         payoff = 0
+        myDecision = self.initial_decision()
+        playerDecisions = {}
 
-        Aa = payoff_matrix[0][self.id_in_group-1]
-        Ab = payoff_matrix[1][self.id_in_group-1]
-        Ba = payoff_matrix[2][self.id_in_group-1]
-        Bb = payoff_matrix[3][self.id_in_group-1]
+        for p in self.group.get_players():
+            playerDecisions[p.participant.code] = p.initial_decision()
 
-        if self.id_in_group == 1:
-            row_player = self.participant
-            q1, q2 = self.initial_decision(), self.other_player().initial_decision()
-        else:
-            row_player = self.other_player().participant
-            q2, q1 = self.initial_decision(), self.other_player().initial_decision()
-
-        q1, q2 = 0.5, 0.5
         for i, d in enumerate(decisions):
-            if d.participant == row_player:
-                q1 = d.value
+            if d.participant == self.participant:
+                myDecision = d.value
+            playerDecisions[d.participant.code] = d.value
+            pos = 1
+            tie = 0
+            for val in playerDecisions:
+                if myDecision > playerDecisions[val]:
+                    pos += 1
+                if myDecision == playerDecisions[val]:
+                    tie += 1
+            if tie > 1:
+                ux = 1 + (2 * constantLambda * myDecision) - (myDecision * myDecision)
+                vy = 0
+                for j in range(tie):
+                    vy += ((1 - ((pos - 0.5 + j)/numPlayers)/gamma) * (1 + ((pos - 0.5 + j)/numPlayers)/rho))
+                vy = vy/tie
+                flow_payoff = ux * vy
             else:
-                q2 = d.value
-            flow_payoff = ((Aa * q1 * q2) +
-                           (Ab * q1 * (1 - q2)) +
-                           (Ba * (1 - q1) * q2) +
-                           (Bb * (1 - q1) * (1 - q2)))
+                ux = 1 + (2 * constantLambda * myDecision) - (myDecision * myDecision)
+                vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho)
+                flow_payoff = ux * vy
+
 
             if i + 1 < len(decisions):
                 next_change_time = decisions[i + 1].timestamp
@@ -207,4 +249,3 @@ class Player(BasePlayer):
             payoff += (next_change_time - d.timestamp).total_seconds() * flow_payoff
 
         return payoff / period_duration.total_seconds()
-"""

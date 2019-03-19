@@ -50,9 +50,14 @@
     <table>
         <tr>
             <td>
-                <span>This needs to be formatted</span>
+                <span>Decision Information</span>
                 <div class="toprow">
-
+                    <p>
+                        Your Current Payoff: [[ payoffFunction(myDecision, otherDecisions) ]]
+                    </p>
+                    <p>
+                        Your Current Timing: [[ myDecision ]]
+                    </p>
                 </div>
             </td>
             <td>
@@ -61,7 +66,8 @@
                     <strategy-graph
                         my-decision='[[ myDecision ]]'
                         other-decisions='[[ otherDecisions ]]'
-                        constant-a='[[ lambda ]]'
+                        min-y='[[ xMin ]]'
+                        max-y='[[ xMax ]]'
                         duration='[[ duration ]]'>
                     </strategy-graph>
                 </div>

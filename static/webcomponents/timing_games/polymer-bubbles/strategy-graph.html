@@ -21,7 +21,10 @@
             otherDecisions: {
                 type: Number,
             },
-            constantA: {
+            minY: {
+                type: Number,
+            },
+            maxY: {
                 type: Number,
             },
             duration: {
@@ -43,8 +46,8 @@
                 this.canvas.width = this.width;
                 this.canvas.height = this.height;
 
-                this.yMin = 0;
-                this.yMax = this.constantA * 2 + 1;
+                this.yMin = this.get('minY');
+                this.yMax = this.get('maxY');
                 this.yRange = this.yMax - this.yMin;
                 this.yScale = this.height / this.yRange;
 

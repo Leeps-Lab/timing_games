@@ -1,4 +1,2 @@
 round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,xMin,xMax,yMin,yMax,displayLower,displayUpper,lambda,gamma,rho,constantH
-1,500,10,TRUE,payoff,500,0,10,10,90,2,6,10,3,3,10
-2,60,4,TRUE,payoff,500,0,10,30,100,2,6,10,3,3,10
-3,60,4,TRUE,payoff,500,0,10,30,100,2,6,10,3,3,10
+1,45,4,TRUE,payoff,500,3,8,40,120,2,6,10,3,3,10
