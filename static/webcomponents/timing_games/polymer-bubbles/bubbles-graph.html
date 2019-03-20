@@ -128,7 +128,7 @@
                     val = this.maxPayoff;
                 }
                 else {
-                    val = (i/this.maxPayoff) * (this.get("maxX") * 2 + 1);
+                    val = i/597 * (this.maxPayoff - this.minPayoff) + this.minPayoff;
                 }
                 this.push('pixelValues', val);
             }
