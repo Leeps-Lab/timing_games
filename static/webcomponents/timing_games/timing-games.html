@@ -246,6 +246,11 @@ significant code taken from bimatrix
 
           return dec;
       },
+
+      _onPeriodStart() {
+          this.$$('polymer-bubbles').roundStart();
+          this.myDecision = this.initialDecision;
+      },
     })
 </script>
 

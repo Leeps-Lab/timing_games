@@ -118,8 +118,7 @@
                 this._drawXAxis();
                 this._drawYAxis();
             });
-
-            for(let i = 0; i < 598; i++) {
+            /*for(let i = 0; i < 598; i++) {
                 let val;
                 if(i < this.get('displayLower')/this.get('maxX') * 598) {
                     val = 0;
@@ -131,7 +130,7 @@
                     val = i/597 * (this.maxPayoff - this.minPayoff) + this.minPayoff;
                 }
                 this.push('pixelValues', val);
-            }
+            } */
 
             /*
             for(let i = 0; i < this.get('numPlayers') - 1; i++) {
@@ -145,6 +144,7 @@
 
         },
         roundStart() {
+            this._setPixelValues();
             setTimeout(this._redrawGraph.bind(this));
             let startTime = Date.now();
             function tick() {
@@ -155,6 +155,25 @@
             }
             tick.call(this);
             //setInterval(this._redrawGraph.bind(this), this.get('updateRate'));
+        },
+        _setPixelValues() {
+            this.pixelValues = [];
+            const interval = (this.xMax - this.get('minX')) / this.width;
+            for(let i = this.get('minX') + interval; i < this.xMax; i += interval) {
+                let val = i/this.xMax * (this.maxPayoff - this.minPayoff) + this.minPayoff;
+                /*
+                if(i < this.get('displayLower')/this.get('maxX') * this.width) {
+                    val = 0;
+                }
+                else if(i > this.get('displayUpper')/this.get('maxX') * this.width) {
+                    val = this.maxPayoff;
+                }
+                else {
+                    val = i/this.width * (this.maxPayoff - this.minPayoff) + this.minPayoff;
+                } */
+                //console.log(i);
+                this.push('pixelValues', val);
+            }
         },
         _redrawGraph() {
             if (!this.ctx) {
@@ -193,10 +212,12 @@
             ctx.beginPath();
 
             const numSamples = this.width;
-            const interval = this.xMax / numSamples;
-            ctx.moveTo(0, payoffFunction(0, otherDecisions));
+            const interval = (this.xMax - this.get('minX')) / numSamples;
+            //ctx.moveTo(0, payoffFunction(0, otherDecisions));
+
+            ctx.moveTo(this.get('minX'), payoffFunction(this.get('minX'), otherDecisions));
             var count = 0;
-            for(let x = 0 + interval; x < this.xMax; x += interval) {
+            for(let x = this.get('minX') + interval; x < this.xMax; x += interval) {
                 let y;
                 if(this.get('updateLandscape')) {
                     y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
@@ -204,6 +225,7 @@
                 else {
                     y = this.get('pixelValues')[count];
                 }
+                //console.log(y);
                 ctx.lineTo(x, y);
                 //console.log(this.get("pixelValues"));
                 this.pixelValues[count] = y;
@@ -240,7 +262,7 @@
                         }
                     }*/
                     //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
-                    const otherSliderPosition = Math.round((otherDecisions[i]/(this.get('maxX')) * 598) * 0.97);
+                    const otherSliderPosition = Math.round(((otherDecisions[i] - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
                     payoff = this.get("pixelValues")[otherSliderPosition];
@@ -277,7 +299,7 @@
 
             const radius = 8;
             //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
-            const mySliderPosition = Math.round((this.myDecision/(this.get('maxX')) * 598) * 0.97);
+            const mySliderPosition = Math.round(((this.myDecision - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
             //const myPayoff = (1 - this.get("constantD")) * payoffFunction(this.myDecision, otherDecisions) + this.get("constantD") * this.get("pixelValues")[mySliderPosition];
             const myPayoff = this.get("pixelValues")[mySliderPosition];
             const x = (this.myDecision - this.xMin) * this.xScale;
