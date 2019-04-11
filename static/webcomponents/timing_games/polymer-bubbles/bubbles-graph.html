@@ -265,7 +265,12 @@
                     const otherSliderPosition = Math.round(((otherDecisions[i] - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
-                    payoff = this.get("pixelValues")[otherSliderPosition];
+                    if(this.enablePayoffLandscape) {
+                        payoff = this.get("pixelValues")[otherSliderPosition];
+                    }
+                    else {
+                        payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
+                    }
                 }
                 ctx.beginPath();
                 const x = (otherDecisions[i] - this.xMin) * this.xScale;
