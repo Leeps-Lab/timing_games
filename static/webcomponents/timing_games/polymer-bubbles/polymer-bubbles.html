@@ -102,6 +102,7 @@
                 <div class="bottomrow">
                     <payoff-graph
                         max-payoff='[[ maxPayoff ]]'
+                        min-payoff='[[ yMin ]]'
                         duration='[[ duration ]]'
                         my-payoff='[[ payoffFunction(myDecision, otherDecisions) ]]'>
                     </payoff-graph>
@@ -203,6 +204,7 @@
             this.strategy_graph = this.$$('strategy-graph');
 
             this.sliderMax = 2 * this.lambda + 1;
+            this.maxPayoff = this.yMax - this.yMin;
             this.slider.value = this.myDecision;
         },
         roundStart() {

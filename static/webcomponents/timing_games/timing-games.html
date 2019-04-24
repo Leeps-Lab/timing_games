@@ -1,6 +1,5 @@
 <!-- webview for timing games
 significant code taken from bimatrix
-
   todo: add titles for different webcomponents
         add an outline on the payoff graph
         setup export
@@ -8,7 +7,6 @@ significant code taken from bimatrix
         add grid lines to bubbles and payoff graphs
         add payoff splitting for ties
         add config option to turn off payoff landscape
-
         current payoff, avg payoff, current strategy, ave strategy
 -->
 
@@ -49,7 +47,6 @@ significant code taken from bimatrix
 <template>
     <div>
         <polymer-bubbles
-            max-payoff='[[ maxPayoff ]]'
             other-decisions='[[ otherDecisions ]]'
             my-decision='{{ myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
@@ -150,7 +147,6 @@ significant code taken from bimatrix
               type: Number,
           },
           periodLength: Number,
-
           // set by redwood-period
           _isPeriodRunning: {
               type: Boolean
@@ -167,9 +163,8 @@ significant code taken from bimatrix
           },
       },
       ready() {
-          this.$$('polymer-bubbles').roundStart();
-          this.myDecision = this.initialDecision;
-
+          //this.$$('polymer-bubbles').roundStart();
+          //this.myDecision = this.initialDecision;
           const lambda = this.lambda;
           const gamma = this.gamma;
           const rho = this.rho;
@@ -185,7 +180,6 @@ significant code taken from bimatrix
                     tie += 1;
                 }
             }
-
             if(tie > 0) {
                 //max 1 + (2 * lambda * (1 + 2 * lambda)/2) - ((1 + 2 * lambda/2)^2)
                 var ux = 1 + (2 * lambda * myDecision) - (myDecision * myDecision);
@@ -202,7 +196,6 @@ significant code taken from bimatrix
                 var vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho);
                 return ux * vy;
             }
-
             /*
             if(tie >= 1) {
                 return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * (pos + tie)/(tie * numPlayers) * (1 - constantD * (pos + tie)/(tie * numPlayers))) + 10);
@@ -210,7 +203,6 @@ significant code taken from bimatrix
             else {
                 return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * pos/numPlayers * (1 - constantD * pos/numPlayers)) + 10);
             } */
-
             /*
             if(tie > 1) {
                 if(pos == 1 && lambda > 0) {
@@ -231,22 +223,18 @@ significant code taken from bimatrix
             } */
           }
       },
-
-      getPayoff(myDecision, otherDecisions) {
-
-      },
-
       _getOtherDecisions(groupDecisions) {
+          let codes = Object.keys(groupDecisions);
+          codes.sort();
+
           var dec = [];
-          for (var pcode in groupDecisions) {
+          for (let pcode of codes) {
               if(this.$.constants.participantCode != pcode) {
                   dec.push(groupDecisions[pcode]);
               }
           }
-
           return dec;
       },
-
       _onPeriodStart() {
           this.$$('polymer-bubbles').roundStart();
           this.myDecision = this.initialDecision;

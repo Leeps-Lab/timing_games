@@ -77,7 +77,7 @@ class Subsession(BaseSubsession):
         for p in players:
             if not p.payoff:
                 p.set_payoff()
-            sum_payoffs += p.payoff
+            sum_payoffs += p.ave_payoff
         return sum_payoffs / len(players)
 
     def enable_payoff_landscape(self):
@@ -150,6 +150,7 @@ class Group(DecisionGroup):
 
 class Player(BasePlayer):
     init_decision = FloatField(null=True)
+    ave_payoff = FloatField(null=True)
 
     def initial_decision(self):
         if not self.init_decision:
@@ -206,8 +207,8 @@ class Player(BasePlayer):
         rho = self.group.rho()
         numPlayers = len(self.group.get_players())
 
-        self.payoff = self.get_payoff(period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho)
-
+        self.ave_payoff = self.get_payoff(period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho)
+        self.save()
 
     def get_payoff(self, period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho):
         period_duration = period_end.timestamp - period_start.timestamp
@@ -239,7 +240,7 @@ class Player(BasePlayer):
             else:
                 ux = 1 + (2 * constantLambda * myDecision) - (myDecision * myDecision)
                 vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho)
-                flow_payoff = ux * vy
+                flow_payoff = ux * vy - self.group.yMin()
 
 
             if i + 1 < len(decisions):
@@ -248,4 +249,5 @@ class Player(BasePlayer):
                 next_change_time = period_end.timestamp
             payoff += (next_change_time - d.timestamp).total_seconds() * flow_payoff
 
+        self.payoff += payoff
         return payoff / period_duration.total_seconds()

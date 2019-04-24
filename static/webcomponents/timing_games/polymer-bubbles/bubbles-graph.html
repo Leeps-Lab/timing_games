@@ -306,7 +306,13 @@
             //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
             const mySliderPosition = Math.round(((this.myDecision - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
             //const myPayoff = (1 - this.get("constantD")) * payoffFunction(this.myDecision, otherDecisions) + this.get("constantD") * this.get("pixelValues")[mySliderPosition];
-            const myPayoff = this.get("pixelValues")[mySliderPosition];
+            let myPayoff;
+            if(this.enablePayoffLandscape) {
+                myPayoff = this.get("pixelValues")[mySliderPosition];
+            }
+            else {
+                myPayoff = payoffFunction(this.myDecision, otherDecisions);
+            }
             const x = (this.myDecision - this.xMin) * this.xScale;
             const y = (this.yMax - myPayoff) * this.yScale;
             ctx.beginPath();

@@ -17,6 +17,9 @@
             maxPayoff: {
                 type: Number,
             },
+            minPayoff: {
+                type: Number,
+            },
             duration: {
                 type: Number,
             },
@@ -36,7 +39,6 @@
                 this.height = this.canvas.clientHeight;
                 this.canvas.width = this.width;
                 this.canvas.height = this.height;
-
                 this.yMin = 0 - this.maxPayoff * 0.1;
                 this.yMax = this.maxPayoff * 1.05;
                 this.yRange = this.yMax - this.yMin;
@@ -89,11 +91,11 @@
                 const {payoff: payoff, time: cur_time} = payoffHistory[i];
                 const {time: next_time} = payoffHistory[i + 1];
 
-                ctx.rect(cur_time, 0, next_time - cur_time, payoff);
+                ctx.rect(cur_time, 0, next_time - cur_time, payoff - this.minPayoff);
             }
 
             const {payoff: payoff, time: time} = payoffHistory[payoffHistory.length - 1];
-            ctx.rect(time, 0, now - time, payoff);
+            ctx.rect(time, 0, now - time, payoff - this.minPayoff);
 
             ctx.restore();
 
