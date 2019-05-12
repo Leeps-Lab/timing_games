@@ -56,6 +56,9 @@
             constantH: {
                 type: Number,
             },
+            bandwidth: {
+                type: Number,
+            },
             numPlayers: {
                 type: Number,
             },
@@ -118,60 +121,30 @@
                 this._drawXAxis();
                 this._drawYAxis();
             });
-            /*for(let i = 0; i < 598; i++) {
-                let val;
-                if(i < this.get('displayLower')/this.get('maxX') * 598) {
-                    val = 0;
-                }
-                else if(i > this.get('displayUpper')/this.get('maxX') * 598) {
-                    val = this.maxPayoff;
-                }
-                else {
-                    val = i/597 * (this.maxPayoff - this.minPayoff) + this.minPayoff;
-                }
-                this.push('pixelValues', val);
-            } */
-
-            /*
-            for(let i = 0; i < this.get('numPlayers') - 1; i++) {
-                let arr = [];
-                for(let j = 0; j < 598; j++) {
-                    const val = (j/this.maxPayoff) * (this.get("lambda") * 2 + 1);
-                    arr.push(val);
-                }
-                this.push('othersPixelValues', arr);
-            }*/
 
         },
         roundStart() {
             this._setPixelValues();
             setTimeout(this._redrawGraph.bind(this));
             let startTime = Date.now();
-            function tick() {
-                this.updateLandscape = true;
-                this._redrawGraph();
-                const timeDiff = Date.now() - startTime;
-                setTimeout(tick.bind(this), this.get('updateRate') - timeDiff % this.get('updateRate'));
+            if(this.updateRate > 0) {
+                function tick() {
+                    this.updateLandscape = true;
+                    this._redrawGraph();
+                    const timeDiff = Date.now() - startTime;
+                    setTimeout(tick.bind(this), this.get('updateRate') - timeDiff % this.get('updateRate'));
+                }
+                tick.call(this);
             }
-            tick.call(this);
-            //setInterval(this._redrawGraph.bind(this), this.get('updateRate'));
+            else {
+                setInterval(this._redrawGraph.bind(this));
+            }
         },
         _setPixelValues() {
             this.pixelValues = [];
             const interval = (this.xMax - this.get('minX')) / this.width;
             for(let i = this.get('minX') + interval; i < this.xMax; i += interval) {
                 let val = i/this.xMax * (this.maxPayoff - this.minPayoff) + this.minPayoff;
-                /*
-                if(i < this.get('displayLower')/this.get('maxX') * this.width) {
-                    val = 0;
-                }
-                else if(i > this.get('displayUpper')/this.get('maxX') * this.width) {
-                    val = this.maxPayoff;
-                }
-                else {
-                    val = i/this.width * (this.maxPayoff - this.minPayoff) + this.minPayoff;
-                } */
-                //console.log(i);
                 this.push('pixelValues', val);
             }
         },
@@ -222,8 +195,16 @@
                 if(this.get('updateLandscape')) {
                     y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
                 }
-                else {
+                else if(this.updateRate > 0){
                     y = this.get('pixelValues')[count];
+                }
+                else {
+                    y = 0;
+                    const interval = this.bandwidth/10;
+                    for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
+                        y += payoffFunction(i, otherDecisions);
+                    }
+                    y = y/21;
                 }
                 //console.log(y);
                 ctx.lineTo(x, y);
@@ -266,7 +247,17 @@
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
                     if(this.enablePayoffLandscape) {
-                        payoff = this.get("pixelValues")[otherSliderPosition];
+                        if(this.updateRate > 0) {
+                            payoff = this.get("pixelValues")[otherSliderPosition];
+                        }
+                        else {
+                            let y = 0;
+                            const interval = this.bandwidth/10;
+                            for(let j = otherDecisions[i] - this.bandwidth; j <= otherDecisions[i] + this.bandwidth; j += interval) {
+                                y += payoffFunction(j, otherDecisionsForOpponent);
+                            }
+                            payoff = y/21;
+                        }
                     }
                     else {
                         payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
@@ -308,7 +299,19 @@
             //const myPayoff = (1 - this.get("constantD")) * payoffFunction(this.myDecision, otherDecisions) + this.get("constantD") * this.get("pixelValues")[mySliderPosition];
             let myPayoff;
             if(this.enablePayoffLandscape) {
-                myPayoff = this.get("pixelValues")[mySliderPosition];
+                if(this.updateRate > 0) {
+                    myPayoff = this.get("pixelValues")[mySliderPosition];
+                }
+                else {
+                    let y = 0;
+                    const interval = this.bandwidth/10;
+                    let count = 0;
+                    for(let i = this.myDecision - this.bandwidth; i <= this.myDecision + this.bandwidth; i += interval) {
+                        y += payoffFunction(i, otherDecisions);
+                    }
+                    y = y/21;
+                    myPayoff = y;
+                }
             }
             else {
                 myPayoff = payoffFunction(this.myDecision, otherDecisions);

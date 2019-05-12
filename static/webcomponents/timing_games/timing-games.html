@@ -45,6 +45,20 @@ significant code taken from bimatrix
 <dom-module id="timing-games">
 
 <template>
+    <style>
+        .wrapper {
+            width: 1000px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            margin-left: -500px;
+        }
+
+        .wrapper polymer-bubbles {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
     <div>
         <polymer-bubbles
             other-decisions='[[ otherDecisions ]]'
@@ -63,6 +77,7 @@ significant code taken from bimatrix
             y-max='[[ yMax ]]'
             display-lower='[[ displayLower ]]'
             display-upper='[[ displayUpper ]]'
+            bandwidth='[[ bandwidth ]]'
             >
         </polymer-bubbles>
     </div>
@@ -143,6 +158,9 @@ significant code taken from bimatrix
           constantH: {
               type: Number,
           },
+          bandwidth: {
+              type: Number,
+          },
           maxPayoff: {
               type: Number,
           },
@@ -196,31 +214,6 @@ significant code taken from bimatrix
                 var vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho);
                 return ux * vy;
             }
-            /*
-            if(tie >= 1) {
-                return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * (pos + tie)/(tie * numPlayers) * (1 - constantD * (pos + tie)/(tie * numPlayers))) + 10);
-            }
-            else {
-                return ((lambda * myDecision * (1 - gamma * myDecision)) * (rho * pos/numPlayers * (1 - constantD * pos/numPlayers)) + 10);
-            } */
-            /*
-            if(tie > 1) {
-                if(pos == 1 && lambda > 0) {
-                    return (myDecision * lambda)/(tie) + 10;
-                }
-                if(gamma > 0 && (pos + tie - 1) == (numPlayers)) {
-                    return ((1- myDecision) * gamma)/(tie) + 10;
-                }
-            }
-            if(pos == 1) {
-                return myDecision * lambda + 10;
-            }
-            else if(pos == (numPlayers)) {
-                return (1 - myDecision) * gamma + 10;
-            }
-            else {
-                return 10;
-            } */
           }
       },
       _getOtherDecisions(groupDecisions) {

@@ -43,6 +43,7 @@ def parse_config(config_file):
             'yMax': int(row['yMax']),
             'displayLower': float(row['displayLower']),
             'displayUpper': float(row['displayUpper']),
+            'bandwidth': float(row['bandwidth']),
         })
     return rounds
 
@@ -131,22 +132,8 @@ class Group(DecisionGroup):
     def displayUpper(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['displayUpper']
 
-    def maxPayoff(self):
-        sliderMax = 1 + 2 * self.constantLambda()
-        numPlayers = len(self.get_players())
-        ux = 1 + (2 * self.constantLambda() * (sliderMax)/2) - ((sliderMax/2) ** 2)
-        uy = (1 - (((numPlayers/2 - 0.5)/numPlayers)/self.gamma())) * (1 + ((numPlayers/2 - 0.5)/numPlayers)/self.rho())
-        return ux * uy
-
-    def minPayoff(self):
-        numPlayers = len(self.get_players())
-        uxLeft = 1 + (2 * self.constantLambda() * self.xMin()) - (self.xMin() ** 2)
-        uxRight = 1 + (2 * self.constantLambda() * self.xMax()) - (self.xMax() ** 2)
-        uyLeft = (1 - ((0.5/numPlayers)/self.gamma()) * (1 + ((0.5/numPlayers)/self.rho())))
-        uyRight = (1 - (((numPlayers - 0.5)/numPlayers)/self.gamma())) * (1 + ((numPlayers - 0.5)/numPlayers)/self.rho())
-        left = uxLeft * uyLeft
-        right = uxRight * uyRight
-        return min(left, right)
+    def bandwidth(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['bandwidth']
 
 class Player(BasePlayer):
     init_decision = FloatField(null=True)
