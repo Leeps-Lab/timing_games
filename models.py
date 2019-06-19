@@ -41,8 +41,6 @@ def parse_config(config_file):
             'xMax': int(row['xMax']),
             'yMin': int(row['yMin']),
             'yMax': int(row['yMax']),
-            'displayLower': float(row['displayLower']),
-            'displayUpper': float(row['displayUpper']),
             'bandwidth': float(row['bandwidth']),
         })
     return rounds
@@ -125,12 +123,6 @@ class Group(DecisionGroup):
 
     def yMax(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['yMax']
-
-    def displayLower(self):
-        return parse_config(self.session.config['config_file'])[self.round_number-1]['displayLower']
-
-    def displayUpper(self):
-        return parse_config(self.session.config['config_file'])[self.round_number-1]['displayUpper']
 
     def bandwidth(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['bandwidth']

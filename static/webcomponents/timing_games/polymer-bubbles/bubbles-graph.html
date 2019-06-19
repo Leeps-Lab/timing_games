@@ -41,12 +41,6 @@
             maxX: {
                 type: Number,
             },
-            displayLower: {
-                type: Number,
-            },
-            displayUpper: {
-                type: Number,
-            },
             lambda: {
                 type: Number,
             },
@@ -193,7 +187,13 @@
             for(let x = this.get('minX') + interval; x < this.xMax; x += interval) {
                 let y;
                 if(this.get('updateLandscape')) {
-                    y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                    //y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                    y = 0;
+                    const interval = this.bandwidth/10;
+                    for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
+                        y += (1 - this.get("constantD")) * payoffFunction(i, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                    }
+                    y = y/21;
                 }
                 else if(this.updateRate > 0){
                     y = this.get('pixelValues')[count];
