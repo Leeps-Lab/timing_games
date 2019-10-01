@@ -88,6 +88,7 @@
                         constant-h='[[ constantH ]]'
                         my-decision='[[ myDecision ]]'
                         others-bubbles='[[ othersBubbles ]]'
+                        smoothing='[[ smoothing ]]'
                         enable-payoff-landscape='[[ enablePayoffLandscape ]]'
                         min-x='[[ xMin ]]'
                         max-x='[[ xMax ]]'
@@ -190,6 +191,15 @@
             //     'strategy': just shows everyone's strategy, without showing their payoff
             //     'payoff': shows everyone else's payoffs as well as their strategy
             othersBubbles: {
+                type: String,
+            },
+            // configuration for graph smoothing
+            // options:
+            //     'none': graph uses payoff function and nothing else
+            //     'temporal': graph uses time smoothing algorithm with half life variable constantH
+            //     'spatial': graph uses space smoothing algorithm with bandwidth variable bandwidth
+            //     'both': graph uses both time and space smoothing algorithms
+            smoothing: {
                 type: String,
             },
         },

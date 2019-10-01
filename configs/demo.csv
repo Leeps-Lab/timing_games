@@ -1,4 +1,4 @@
-round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,xMin,xMax,yMin,yMax,lambda,gamma,rho,constantH,bandwidth
-1,240,10,TRUE,payoff,250,0,20,0,200,10,1.1,0.5,10,0.1
-1,240,10,TRUE,payoff,250,0,20,0,350,10,1.1,0.1,10,0.1
-1,240,10,TRUE,payoff,250,0,20,0,250,10,1.1,0.3,10,0.1
+round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,xMin,xMax,yMin,yMax,lambda,gamma,rho,constantH,bandwidth,smoothing
+1,1000,10,TRUE,payoff,250,0,20,0,150,10,1.1,0.5,10,0.1,spatial
+1,240,10,TRUE,payoff,250,0,20,0,350,10,1.1,0.1,10,-1,spatial
+1,240,10,TRUE,payoff,250,0,20,0,250,10,1.1,0.3,10,-1,spatial

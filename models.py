@@ -32,6 +32,7 @@ def parse_config(config_file):
             'players_per_group': int(row['players_per_group']),
             'enable_payoff_landscape': True if row['enablePayoffLandscape'] == 'TRUE' else False,
             'others_bubbles': str(row['others_bubbles']),
+            'smoothing': str(row['smoothing']),
             'lambda': int(row['lambda']),
             'gamma': float(row['gamma']),
             'rho': float(row['rho']),
@@ -84,6 +85,9 @@ class Subsession(BaseSubsession):
 
     def others_bubbles(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['others_bubbles']
+
+    def smoothing(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['smoothing']
 
     def players_per_group(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']

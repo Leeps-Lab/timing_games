@@ -79,7 +79,20 @@
             //     'payoff': shows everyone else's payoffs as well as their strategy
             othersBubbles: {
                 type: String,
-            }
+            },
+            // configuration for graph smoothing
+            // options:
+            //     'none': graph uses payoff function and nothing else
+            //     'temporal': graph uses time smoothing algorithm with half life variable constantH
+            //     'spatial': graph uses space smoothing algorithm with bandwidth variable bandwidth
+            //     'both': graph uses both time and space smoothing algorithms
+            smoothing: {
+                type: String,
+            },
+            first: {
+                type: Boolean,
+                value: true,
+            },
         },
         observers: [
             '_redrawGraph(otherDecisions)',
@@ -121,7 +134,7 @@
             this._setPixelValues();
             setTimeout(this._redrawGraph.bind(this));
             let startTime = Date.now();
-            if(this.updateRate > 0) {
+            if(this.smoothing === 'temporal' || this.smoothing === 'both') {
                 function tick() {
                     this.updateLandscape = true;
                     this._redrawGraph();
@@ -186,30 +199,74 @@
             var count = 0;
             for(let x = this.get('minX') + interval; x < this.xMax; x += interval) {
                 let y;
-                if(this.get('updateLandscape')) {
-                    if(this.bandwidth > 0) {
+                if(this.smoothing === 'both') {
+                    if(this.get('updateLandscape')) {
                         y = 0;
                         const interval = this.bandwidth/10;
+                        let loops = 0;
                         for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
-                            y += (1 - this.get("constantD")) * payoffFunction(i, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                            y += payoffFunction(i, otherDecisions);
+                            loops++;
+                        }
+                        if(loops == 20) {
+                            y += payoffFunction(x + this.bandwidth, otherDecisions)
                         }
                         y = y/21;
+                        y = (1 - this.get("constantD")) * y + this.get("constantD") * this.get("pixelValues")[count];
                     }
                     else {
-                        y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                        y = this.get('pixelValues')[count];
                     }
                 }
-                else if(this.updateRate > 0){
-                    y = this.get('pixelValues')[count];
+                else if(this.smoothing === 'temporal') {
+                    if(this.get('updateLandscape')) {
+                        y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                    }
+                    else {
+                        y = this.get('pixelValues')[count];
+                    }
                 }
-                else {
+                else if(this.smoothing === 'spatial') {
                     y = 0;
                     const interval = this.bandwidth/10;
+                    let loops = 0;
                     for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
                         y += payoffFunction(i, otherDecisions);
+                        loops++;
+                    }
+                    if(loops == 20) {
+                        y += payoffFunction(x + this.bandwidth, otherDecisions)
                     }
                     y = y/21;
                 }
+                else {
+                    y = payoffFunction(x, otherDecisions);
+                }
+                // if(this.get('updateLandscape')) {
+                //     if(this.bandwidth > 0) {
+                //         y = 0;
+                //         const interval = this.bandwidth/10;
+                //         for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
+                //             y += (1 - this.get("constantD")) * payoffFunction(i, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                //         }
+                //         y = y/21;
+                //     }
+                //     else {
+                //         y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                //     }
+                //     //console.log(y);
+                // }
+                // else if(this.updateRate > 0){
+                //     y = this.get('pixelValues')[count];
+                // }
+                // else {
+                //     y = 0;
+                //     const interval = this.bandwidth/10;
+                //     for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
+                //         y += payoffFunction(i, otherDecisions);
+                //     }
+                //     y = y/21;
+                // }
                 //console.log(y);
                 ctx.lineTo(x, y);
                 //console.log(this.get("pixelValues"));
@@ -218,7 +275,8 @@
                 //console.log(count);
             }
             //console.log(this.get('pixelValues'));
-
+            this.updateLandscape = true;
+            this.first = false;
             ctx.restore();
             ctx.lineJoin = 'round';
             ctx.lineWidth = 2;
@@ -251,16 +309,25 @@
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
                     if(this.enablePayoffLandscape) {
-                        if(this.updateRate > 0) {
+                        if(this.smoothing === 'temporal' || this.smoothing === 'both') {
                             payoff = this.get("pixelValues")[otherSliderPosition];
                         }
-                        else {
+                        else if(this.smoothing === 'spatial'){
                             let y = 0;
                             const interval = this.bandwidth/10;
+                            let loops = 0;
                             for(let j = otherDecisions[i] - this.bandwidth; j <= otherDecisions[i] + this.bandwidth; j += interval) {
                                 y += payoffFunction(j, otherDecisionsForOpponent);
+                                loops++;
                             }
-                            payoff = y/21;
+                            if(loops == 20) {
+                                y += payoffFunction(otherDecisions[i] + this.bandwidth, otherDecisions)
+                            }
+                            y = y/21;
+                            payoff = y;
+                        }
+                        else {
+                            payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                         }
                     }
                     else {
@@ -303,18 +370,25 @@
             //const myPayoff = (1 - this.get("constantD")) * payoffFunction(this.myDecision, otherDecisions) + this.get("constantD") * this.get("pixelValues")[mySliderPosition];
             let myPayoff;
             if(this.enablePayoffLandscape) {
-                if(this.updateRate > 0) {
+                if(this.smoothing === 'temporal' || this.smoothing === 'both') {
                     myPayoff = this.get("pixelValues")[mySliderPosition];
                 }
-                else {
+                else if(this.smoothing === 'spatial'){
                     let y = 0;
                     const interval = this.bandwidth/10;
-                    let count = 0;
+                    let loops = 0;
                     for(let i = this.myDecision - this.bandwidth; i <= this.myDecision + this.bandwidth; i += interval) {
                         y += payoffFunction(i, otherDecisions);
+                        loops++;
+                    }
+                    if(loops == 20) {
+                        y += payoffFunction(this.myDecision + this.bandwidth, otherDecisions)
                     }
                     y = y/21;
                     myPayoff = y;
+                }
+                else {
+                    myPayoff = payoffFunction(this.myDecision, otherDecisions);
                 }
             }
             else {

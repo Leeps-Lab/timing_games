@@ -69,6 +69,7 @@ significant code taken from bimatrix
             duration='[[ periodLength ]]'
             enable-payoff-landscape='[[ enablePayoffLandscape ]]'
             others-bubbles='[[ othersBubbles ]]'
+            smoothing='[[ smoothing ]]'
             update-rate='[[ updateRate ]]'
             num-players='[[ playersPerGroup ]]'
             x-min='[[ xMin ]]'
@@ -118,6 +119,9 @@ significant code taken from bimatrix
               value: false,
           },
           othersBubbles: {
+              type: String,
+          },
+          smoothing: {
               type: String,
           },
           updateRate: {
