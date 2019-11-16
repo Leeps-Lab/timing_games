@@ -20,6 +20,9 @@
         {% if player.subsession.enable_payoff_landscape %}
         enable-payoff-landscape
         {% endif %}
+        {% if player.subsession.enable_bots %}
+        bots
+        {% endif %}
         others-bubbles='{{ player.subsession.others_bubbles }}'
         smoothing='{{ player.subsession.smoothing }}'
         update-rate='{{ player.group.updateRate }}'

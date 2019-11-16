@@ -43,6 +43,7 @@ def parse_config(config_file):
             'yMin': int(row['yMin']),
             'yMax': int(row['yMax']),
             'bandwidth': float(row['bandwidth']),
+            'enable_bots': True if row['enablePayoffLandscape'] == 'TRUE' else False,
         })
     return rounds
 
@@ -91,6 +92,9 @@ class Subsession(BaseSubsession):
 
     def players_per_group(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']
+
+    def enable_bots(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['enable_bots']
 
 
 class Group(DecisionGroup):
