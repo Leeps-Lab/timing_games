@@ -89,6 +89,12 @@ significant code taken from bimatrix
         on-period-end="_onPeriodEnd">
     </redwood-period>
 
+    <redwood-decision-bot
+        id="bot"
+        my-decision="{{ myDecision }}"
+        other-decision="[[ otherDecision ]]">
+    </redwood-decision-bot>
+
     <redwood-decision
         initial-decision="[[ initialDecision ]]"
         my-decision="{{ myDecision }}"
@@ -160,6 +166,10 @@ significant code taken from bimatrix
           maxPayoff: {
               type: Number,
           },
+          bots: {
+              type: Boolean,
+              value: false,
+          },
           periodLength: Number,
           // set by redwood-period
           _isPeriodRunning: {
@@ -226,7 +236,53 @@ significant code taken from bimatrix
       },
       _onPeriodStart() {
           this.$$('polymer-bubbles').roundStart();
+          let startTime = Date.now();
           this.myDecision = this.initialDecision;
+          if(this.bots) {
+              function tick() {
+                  let best = -99999;
+                  let choice = 0;
+                  for(let dec = this.xMin; dec < this.xMax; dec += ((this.xMax - this.xMin)/100)) {
+                      var pos = 1;
+                      var tie = 0;
+                      var numPlayers = this.otherDecisions.length + 1;
+                      for(var i = 0; i < this.otherDecisions.length; i++) {
+                          if(this.otherDecisions[i] < dec) {
+                              pos++;
+                          }
+                          if(this.otherDecisions[i] == dec) {
+                              tie += 1;
+                          }
+                      }
+                      if(tie > 0) {
+                          //max 1 + (2 * lambda * (1 + 2 * lambda)/2) - ((1 + 2 * lambda/2)^2)
+                          var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
+                          var vy = 0;
+                          for(var i = 0; i <= tie; i++) {
+                              //max (1 - ((numPlayers - 0.5)/numPlayers)/gamma) * (1 + ((numPlayers - 0.5)/numPlayers)/rho)
+                              vy += ((1 - ((pos - 0.5 + i)/numPlayers)/this.gamma) * (1 + ((pos - 0.5 + i)/numPlayers)/this.rho));
+                          }
+                          vy = vy/(tie + 1);
+                          if((ux * vy) >= best) {
+                              best = ux * vy;
+                              choice = dec;
+                          }
+                      }
+                      else {
+                          var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
+                          var vy = (1 - ((pos - 0.5)/numPlayers)/this.gamma) * (1 + ((pos - 0.5)/numPlayers)/this.rho);
+                          if((ux * vy) >= best) {
+                              best = ux * vy;
+                              choice = dec;
+                          }
+                      }
+                  }
+                  this.myDecision = choice + Math.random()/20 - 0.05;
+                  const timeDiff = Date.now() - startTime;
+                  setTimeout(tick.bind(this), 1000 - timeDiff % 1000);
+              }
+              tick.call(this);
+          }
       },
     })
 </script>
