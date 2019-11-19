@@ -12,11 +12,12 @@ doc = """
 This is a configurable timing game.
 """
 
+
 class Constants(BaseConstants):
     name_in_url = 'timing_games'
     players_per_group = None
-	# Maximum number of rounds, actual number is taken as the max round
-	# in the config file.
+    # Maximum number of rounds, actual number is taken as the max round
+    # in the config file.
     num_rounds = 100
     base_points = 0
 
@@ -43,9 +44,10 @@ def parse_config(config_file):
             'yMin': int(row['yMin']),
             'yMax': int(row['yMax']),
             'bandwidth': float(row['bandwidth']),
-            'enable_bots': True if row['enablePayoffLandscape'] == 'TRUE' else False,
+            'enable_bots': True if row['enable_bots'] == 'TRUE' else False,
         })
     return rounds
+
 
 class Subsession(BaseSubsession):
 
@@ -60,7 +62,8 @@ class Subsession(BaseSubsession):
             return
         group_matrix = []
         players = self.get_players()
-        ppg = parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']
+        ppg = parse_config(self.session.config['config_file'])[
+            self.round_number-1]['players_per_group']
         for i in range(0, len(players), ppg):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
@@ -135,6 +138,7 @@ class Group(DecisionGroup):
     def bandwidth(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['bandwidth']
 
+
 class Player(BasePlayer):
     init_decision = FloatField(null=True)
     ave_payoff = FloatField(null=True)
@@ -149,15 +153,15 @@ class Player(BasePlayer):
 
     def get_average_strategy(self):
         decisions = list(Event.objects.filter(
-                channel='group_decisions',
-                content_type=ContentType.objects.get_for_model(self.group),
-                group_pk=self.group.pk).order_by("timestamp"))
+            channel='group_decisions',
+            content_type=ContentType.objects.get_for_model(self.group),
+            group_pk=self.group.pk).order_by("timestamp"))
         try:
             period_end = Event.objects.get(
-                    channel='state',
-                    content_type=ContentType.objects.get_for_model(self.group),
-                    group_pk=self.group.pk,
-                    value='period_end').timestamp
+                channel='state',
+                content_type=ContentType.objects.get_for_model(self.group),
+                group_pk=self.group.pk,
+                value='period_end').timestamp
         except Event.DoesNotExist:
             return float('nan')
         # sum of all decisions weighted by the amount of time that decision was held
@@ -166,26 +170,27 @@ class Player(BasePlayer):
             cur_decision = decisions.pop(0)
             next_change_time = decisions[0].timestamp if decisions else period_end
             decision_value = cur_decision.value[self.participant.code]
-            weighted_sum_decision += decision_value * (next_change_time - cur_decision.timestamp).total_seconds()
+            weighted_sum_decision += decision_value * \
+                (next_change_time - cur_decision.timestamp).total_seconds()
         return weighted_sum_decision / self.group.period_length()
 
     def set_payoff(self):
         decisions = list(Event.objects.filter(
-                channel='decisions',
-                content_type=ContentType.objects.get_for_model(self.group),
-                group_pk=self.group.pk).order_by("timestamp"))
+            channel='decisions',
+            content_type=ContentType.objects.get_for_model(self.group),
+            group_pk=self.group.pk).order_by("timestamp"))
 
         try:
             period_start = Event.objects.get(
-                    channel='state',
-                    content_type=ContentType.objects.get_for_model(self.group),
-                    group_pk=self.group.pk,
-                    value='period_start')
+                channel='state',
+                content_type=ContentType.objects.get_for_model(self.group),
+                group_pk=self.group.pk,
+                value='period_start')
             period_end = Event.objects.get(
-                    channel='state',
-                    content_type=ContentType.objects.get_for_model(self.group),
-                    group_pk=self.group.pk,
-                    value='period_end')
+                channel='state',
+                content_type=ContentType.objects.get_for_model(self.group),
+                group_pk=self.group.pk,
+                value='period_end')
         except Event.DoesNotExist:
             return float('nan')
 
@@ -194,7 +199,8 @@ class Player(BasePlayer):
         rho = self.group.rho()
         numPlayers = len(self.group.get_players())
 
-        self.ave_payoff = self.get_payoff(period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho)
+        self.ave_payoff = self.get_payoff(
+            period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho)
         self.save()
 
     def get_payoff(self, period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho):
@@ -221,14 +227,14 @@ class Player(BasePlayer):
                 ux = 1 + (2 * constantLambda * myDecision) - (myDecision * myDecision)
                 vy = 0
                 for j in range(tie):
-                    vy += ((1 - ((pos - 0.5 + j)/numPlayers)/gamma) * (1 + ((pos - 0.5 + j)/numPlayers)/rho))
+                    vy += ((1 - ((pos - 0.5 + j)/numPlayers)/gamma)
+                           * (1 + ((pos - 0.5 + j)/numPlayers)/rho))
                 vy = vy/tie
                 flow_payoff = ux * vy
             else:
                 ux = 1 + (2 * constantLambda * myDecision) - (myDecision * myDecision)
                 vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho)
                 flow_payoff = ux * vy - self.group.yMin()
-
 
             if i + 1 < len(decisions):
                 next_change_time = decisions[i + 1].timestamp

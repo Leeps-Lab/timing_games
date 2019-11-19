@@ -239,6 +239,7 @@ significant code taken from bimatrix
           let startTime = Date.now();
           this.myDecision = this.initialDecision;
           if(this.bots) {
+              console.log("bots are turned on");
               function tick() {
                   let best = -99999;
                   let choice = 0;

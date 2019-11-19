@@ -5,6 +5,7 @@ from operator import concat
 from functools import reduce
 from .models import parse_config
 
+
 class Introduction(Page):
 
     def is_displayed(self):
@@ -25,6 +26,7 @@ class Decision(Page):
     def is_displayed(self):
         return self.round_number <= self.group.num_rounds()
 
+
 class Results(Page):
 
     def vars_for_template(self):
@@ -37,6 +39,7 @@ class Results(Page):
 
     def is_displayed(self):
         return self.round_number <= self.group.num_rounds()
+
 
 def get_config_columns(group):
     config = parse_config(group.session.config['config_file'])[group.round_number - 1]
@@ -55,8 +58,9 @@ def get_config_columns(group):
         config['xMax'],
         config['yMin'],
         config['yMax'],
-        config['displayLower'],
-        config['displayUpper'],
+        config['bandwidth'],
+        config['smoothing'],
+        config['enable_bots'],
     ]
 
 
@@ -88,8 +92,9 @@ def get_output_table_header(groups):
         'xMax',
         'yMin',
         'yMax',
-        'displayLower',
-        'displayUpper',
+        'bandwidth',
+        'smoothing',
+        'enable_bots',
     ]
     return header
 
@@ -99,13 +104,15 @@ def get_output_table(events):
         return []
     return get_output(events)
 
+
 def get_output(events):
     rows = []
     minT = min(e.timestamp for e in events if e.channel == 'state')
     maxT = max(e.timestamp for e in events if e.channel == 'state')
     group = events[0].group
     players = group.get_players()
-    max_num_players = parse_config(group.session.config['config_file'])[group.round_number - 1]['players_per_group']
+    max_num_players = parse_config(group.session.config['config_file'])[
+        group.round_number - 1]['players_per_group']
     config_columns = get_config_columns(group)
     # sets sampling frequency
     ticks_per_second = 2
@@ -127,7 +134,7 @@ def get_output(events):
         ]
         for player_num in range(max_num_players):
             if player_num >= len(players):
-                row += ['', '']
+                continue
             else:
                 pcode = players[player_num].participant.code
                 row += [
@@ -137,6 +144,7 @@ def get_output(events):
         row += config_columns
         rows.append(row)
     return rows
+
 
 page_sequence = [
     Introduction,
