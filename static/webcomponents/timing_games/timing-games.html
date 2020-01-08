@@ -170,6 +170,9 @@ significant code taken from bimatrix
               type: Boolean,
               value: false,
           },
+          myCurrPayoff: {
+              type: Number,
+          },
           periodLength: Number,
           // set by redwood-period
           _isPeriodRunning: {
@@ -213,11 +216,13 @@ significant code taken from bimatrix
                     vy += ((1 - ((pos - 0.5 + i)/numPlayers)/gamma) * (1 + ((pos - 0.5 + i)/numPlayers)/rho));
                 }
                 vy = vy/(tie + 1);
+                this.myCurrPayoff = ux * vy;
                 return ux * vy;
             }
             else {
                 var ux = 1 + (2 * lambda * myDecision) - (myDecision * myDecision);
                 var vy = (1 - ((pos - 0.5)/numPlayers)/gamma) * (1 + ((pos - 0.5)/numPlayers)/rho);
+                this.myCurrPayoff = ux * vy;
                 return ux * vy;
             }
           }
@@ -243,6 +248,7 @@ significant code taken from bimatrix
               function tick() {
                   let best = -99999;
                   let choice = 0;
+                  let wait = 0;
                   for(let dec = this.xMin; dec < this.xMax; dec += ((this.xMax - this.xMin)/100)) {
                       var pos = 1;
                       var tie = 0;
@@ -278,9 +284,10 @@ significant code taken from bimatrix
                           }
                       }
                   }
+                  wait = 2000/(best - this.myCurrPayoff);
                   this.myDecision = choice + Math.random()/20 - 0.05;
                   const timeDiff = Date.now() - startTime;
-                  setTimeout(tick.bind(this), 1000 - timeDiff % 1000);
+                  setTimeout(tick.bind(this), 1000 + wait - timeDiff % 1000);
               }
               tick.call(this);
           }
