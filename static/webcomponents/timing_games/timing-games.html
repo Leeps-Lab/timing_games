@@ -284,10 +284,10 @@ significant code taken from bimatrix
                           }
                       }
                   }
-                  wait = 2000/(best - this.myCurrPayoff);
+                  wait = 2000/(best - this.myCurrPayoff) + Math.random() * 100;
                   this.myDecision = choice + Math.random()/20 - 0.05;
-                  const timeDiff = Date.now() - startTime;
-                  setTimeout(tick.bind(this), 1000 + wait - timeDiff % 1000);
+                  // const timeDiff = Date.now() - startTime;
+                  setTimeout(tick.bind(this), 700 + wait);
               }
               tick.call(this);
           }
