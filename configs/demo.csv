@@ -1,2 +1,2 @@
-round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,xMin,xMax,yMin,yMax,lambda,gamma,rho,constantH,bandwidth,smoothing,enable_bots
-1,200,10,TRUE,payoff,250,3,7,22,27,5,3.6,3,10,0.1,none,TRUE
+round,period_length,players_per_group,enablePayoffLandscape,others_bubbles,updateRate,xMin,xMax,yMin,yMax,lambda,gamma,rho,constantH,bandwidth,smoothing,enable_bots,sample_size,constantE
+1,200,10,TRUE,payoff,250,3,7,22,27,5,3.6,3,10,0.1,none,FALSE,2,2

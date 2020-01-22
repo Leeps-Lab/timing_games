@@ -79,6 +79,7 @@
                 <div class="bottomrow">
                     <bubbles-graph
                         other-decisions='[[ otherDecisions ]]'
+                        sampled-decisions='[[ sampledDecisions ]]'
                         min-payoff='[[ yMin ]]'
                         max-payoff='[[ yMax ]]'
                         payoff-function='[[ payoffFunction ]]'
@@ -93,6 +94,8 @@
                         min-x='[[ xMin ]]'
                         max-x='[[ xMax ]]'
                         bandwidth='[[ bandwidth ]]'
+                        pixel-values='{{ pixelValues }}'
+                        sample-size='[[ sampleSize ]]'
                         >
                     </bubbles-graph>
                 </div>
@@ -144,6 +147,9 @@
                     };
                 },
             },
+            sampledDecisions: {
+                type: Array,
+            },
             updateRate: {
                 type: Number,
             },
@@ -165,9 +171,15 @@
             constantH: {
                 type: Number,
             },
+            purification: {
+                type: Number,
+            },
             enablePayoffLandscape: {
                 type: Boolean,
                 value: false,
+            },
+            sampleSize: {
+                type: Number,
             },
             numPlayers: {
                 type: Number,
@@ -204,6 +216,11 @@
             //     'both': graph uses both time and space smoothing algorithms
             smoothing: {
                 type: String,
+            },
+            pixelValues: {
+                type: Array,
+                value: [],
+                notify: true,
             },
         },
         ready() {

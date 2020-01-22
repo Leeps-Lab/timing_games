@@ -64,8 +64,10 @@ significant code taken from bimatrix
             other-decisions='[[ otherDecisions ]]'
             my-decision='{{ myDecision }}'
             payoff-function='[[ _payoffFunction ]]'
+            sampled-decisions='[[ sampledDecisions ]]'
             lambda='[[ lambda ]]'
             constant-h='[[ constantH ]]'
+            purification='[[ purification ]]'
             duration='[[ periodLength ]]'
             enable-payoff-landscape='[[ enablePayoffLandscape ]]'
             others-bubbles='[[ othersBubbles ]]'
@@ -77,6 +79,8 @@ significant code taken from bimatrix
             y-min='[[ yMin ]]'
             y-max='[[ yMax ]]'
             bandwidth='[[ bandwidth ]]'
+            pixel-values='{{ pixelValues }}'
+            sample-size='[[ samepleSize ]]'
             >
         </polymer-bubbles>
     </div>
@@ -120,6 +124,9 @@ significant code taken from bimatrix
               type: Array,
               computed: "_getOtherDecisions(groupDecisions)",
           },
+          sampledDecisions: {
+              type: Array,
+          },
           enablePayoffLandscape: {
               type: Boolean,
               value: false,
@@ -132,6 +139,11 @@ significant code taken from bimatrix
           },
           updateRate: {
               type: Number,
+          },
+          pixelValues: {
+              type: Array,
+              value: [],
+              notify: true,
           },
           playersPerGroup: {
               type: Number,
@@ -170,7 +182,16 @@ significant code taken from bimatrix
               type: Boolean,
               value: false,
           },
+          sampleSize: {
+              type: Number,
+          },
           myCurrPayoff: {
+              type: Number,
+          },
+          constantE: {
+              type: Number,
+          },
+          purification: {
               type: Number,
           },
           periodLength: Number,
@@ -230,13 +251,37 @@ significant code taken from bimatrix
       _getOtherDecisions(groupDecisions) {
           let codes = Object.keys(groupDecisions);
           codes.sort();
+          let sampling = false;
+          let sampled = []
+          let puriVal = 0;
 
           var dec = [];
           for (let pcode of codes) {
               if(this.$.constants.participantCode != pcode) {
                   dec.push(groupDecisions[pcode]);
               }
+              if(this.$.constants.participantCode == pcode) {
+                  sampling = true;
+                  this.purification = this.constantE * (puriVal/codes.length);
+                  continue;
+              }
+              if(sampling && sampled.length < this.sampleSize) {
+                  sampled.push(groupDecisions[pcode]);
+              }
+              puriVal++;
           }
+          if(sampled.length < this.sampleSize) {
+              for(let pcode of codes) {
+                  sampled.push(groupDecisions[pcode]);
+                  if(sampled.length == this.sampleSize) {
+                      break;
+                  }
+              }
+          }
+          if(this.constantE < 0) {
+              this.purification = 1;
+          }
+          this.sampledDecisions = sampled;
           return dec;
       },
       _onPeriodStart() {
@@ -249,41 +294,48 @@ significant code taken from bimatrix
                   let best = -99999;
                   let choice = 0;
                   let wait = 0;
-                  for(let dec = this.xMin; dec < this.xMax; dec += ((this.xMax - this.xMin)/100)) {
-                      var pos = 1;
-                      var tie = 0;
-                      var numPlayers = this.otherDecisions.length + 1;
-                      for(var i = 0; i < this.otherDecisions.length; i++) {
-                          if(this.otherDecisions[i] < dec) {
-                              pos++;
-                          }
-                          if(this.otherDecisions[i] == dec) {
-                              tie += 1;
-                          }
-                      }
-                      if(tie > 0) {
-                          //max 1 + (2 * lambda * (1 + 2 * lambda)/2) - ((1 + 2 * lambda/2)^2)
-                          var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
-                          var vy = 0;
-                          for(var i = 0; i <= tie; i++) {
-                              //max (1 - ((numPlayers - 0.5)/numPlayers)/gamma) * (1 + ((numPlayers - 0.5)/numPlayers)/rho)
-                              vy += ((1 - ((pos - 0.5 + i)/numPlayers)/this.gamma) * (1 + ((pos - 0.5 + i)/numPlayers)/this.rho));
-                          }
-                          vy = vy/(tie + 1);
-                          if((ux * vy) >= best) {
-                              best = ux * vy;
-                              choice = dec;
-                          }
-                      }
-                      else {
-                          var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
-                          var vy = (1 - ((pos - 0.5)/numPlayers)/this.gamma) * (1 + ((pos - 0.5)/numPlayers)/this.rho);
-                          if((ux * vy) >= best) {
-                              best = ux * vy;
-                              choice = dec;
-                          }
+                  // for(let dec = this.xMin; dec < this.xMax; dec += ((this.xMax - this.xMin)/100)) {
+                  //     var pos = 1;
+                  //     var tie = 0;
+                  //     var numPlayers = this.otherDecisions.length + 1;
+                  //     for(var i = 0; i < this.otherDecisions.length; i++) {
+                  //         if(this.otherDecisions[i] < dec) {
+                  //             pos++;
+                  //         }
+                  //         if(this.otherDecisions[i] == dec) {
+                  //             tie += 1;
+                  //         }
+                  //     }
+                  //     if(tie > 0) {
+                  //         //max 1 + (2 * lambda * (1 + 2 * lambda)/2) - ((1 + 2 * lambda/2)^2)
+                  //         var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
+                  //         var vy = 0;
+                  //         for(var i = 0; i <= tie; i++) {
+                  //             //max (1 - ((numPlayers - 0.5)/numPlayers)/gamma) * (1 + ((numPlayers - 0.5)/numPlayers)/rho)
+                  //             vy += ((1 - ((pos - 0.5 + i)/numPlayers)/this.gamma) * (1 + ((pos - 0.5 + i)/numPlayers)/this.rho));
+                  //         }
+                  //         vy = vy/(tie + 1);
+                  //         if((ux * vy) >= best) {
+                  //             best = ux * vy;
+                  //             choice = dec;
+                  //         }
+                  //     }
+                  //     else {
+                  //         var ux = 1 + (2 * this.lambda * dec) - (dec * dec);
+                  //         var vy = (1 - ((pos - 0.5)/numPlayers)/this.gamma) * (1 + ((pos - 0.5)/numPlayers)/this.rho);
+                  //         if((ux * vy) >= best) {
+                  //             best = ux * vy;
+                  //             choice = dec;
+                  //         }
+                  //     }
+                  // }
+                  for(let i = 0; i < this.pixelValues.length; i++) {
+                      if(this.pixelValues[i] > best) {
+                          best = this.pixelValues[i];
+                          choice = i;
                       }
                   }
+                  choice = (choice/this.pixelValues.length) * (this.xMax - this.xMin) + this.xMin;
                   wait = 2000/(best - this.myCurrPayoff) + Math.random() * 100;
                   this.myDecision = choice + Math.random()/20 - 0.05;
                   // const timeDiff = Date.now() - startTime;

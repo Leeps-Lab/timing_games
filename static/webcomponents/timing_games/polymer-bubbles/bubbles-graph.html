@@ -29,6 +29,9 @@
             otherDecisions: {
                 type: Array,
             },
+            sampledDecisions: {
+                type: Array,
+            },
             payoffFunction: {
                 type: Object,
             },
@@ -50,6 +53,10 @@
             constantH: {
                 type: Number,
             },
+            purification: {
+                type: Number,
+                value: 1,
+            },
             bandwidth: {
                 type: Number,
             },
@@ -59,6 +66,10 @@
             pixelValues: {
                 type: Array,
                 value: [],
+                notify: true,
+            },
+            sampleSize: {
+                type: Number,
             },
             othersPixelValues: {
                 type: Array,
@@ -185,6 +196,7 @@
 
             const payoffFunction = this.get('payoffFunction');
             const otherDecisions = this.get('otherDecisions');
+            const sampledDecisions = this.get('sampledDecisions');
 
             ctx.save();
             ctx.save();
@@ -195,7 +207,7 @@
             const interval = (this.xMax - this.get('minX')) / numSamples;
             //ctx.moveTo(0, payoffFunction(0, otherDecisions));
 
-            ctx.moveTo(this.get('minX'), payoffFunction(this.get('minX'), otherDecisions));
+            ctx.moveTo(this.get('minX'), payoffFunction(this.get('minX'), sampledDecisions));
             var count = 0;
             for(let x = this.get('minX') + interval; x < this.xMax; x += interval) {
                 let y;
@@ -205,11 +217,11 @@
                         const interval = this.bandwidth/10;
                         let loops = 0;
                         for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
-                            y += payoffFunction(i, otherDecisions);
+                            y += payoffFunction(i, sampledDecisions) * this.purification;
                             loops++;
                         }
                         if(loops == 20) {
-                            y += payoffFunction(x + this.bandwidth, otherDecisions)
+                            y += payoffFunction(x + this.bandwidth, sampledDecisions) * this.purification;
                         }
                         y = y/21;
                         y = (1 - this.get("constantD")) * y + this.get("constantD") * this.get("pixelValues")[count];
@@ -220,7 +232,7 @@
                 }
                 else if(this.smoothing === 'temporal') {
                     if(this.get('updateLandscape')) {
-                        y = (1 - this.get("constantD")) * payoffFunction(x, otherDecisions) + this.get("constantD") * this.get("pixelValues")[count];
+                        y = (1 - this.get("constantD")) * payoffFunction(x, sampledDecisions) * this.purification + this.get("constantD") * this.get("pixelValues")[count];
                     }
                     else {
                         y = this.get('pixelValues')[count];
@@ -231,16 +243,16 @@
                     const interval = this.bandwidth/10;
                     let loops = 0;
                     for(let i = x - this.bandwidth; i <= x + this.bandwidth; i += interval) {
-                        y += payoffFunction(i, otherDecisions);
+                        y += payoffFunction(i, sampledDecisions) * this.purification;
                         loops++;
                     }
                     if(loops == 20) {
-                        y += payoffFunction(x + this.bandwidth, otherDecisions)
+                        y += payoffFunction(x + this.bandwidth, sampledDecisions) * this.purification;
                     }
                     y = y/21;
                 }
                 else {
-                    y = payoffFunction(x, otherDecisions);
+                    y = payoffFunction(x, sampledDecisions) * this.purification;
                 }
                 // if(this.get('updateLandscape')) {
                 //     if(this.bandwidth > 0) {
@@ -288,6 +300,7 @@
 
             const payoffFunction = this.get('payoffFunction');
             const otherDecisions = this.get('otherDecisions');
+            const sampledDecisions = this.get('sampledDecisions');
 
             ctx.save();
 
@@ -309,7 +322,7 @@
                     //payoff = payoffFunction(otherDecisions[i], otherDecisionsForOpponent);
                     //payoff = (1 - this.get("constantD")) * payoffFunction(otherDecisions[i], otherDecisionsForOpponent) + this.get("constantD") * this.get("pixelValues")[otherSliderPosition];
                     if(this.enablePayoffLandscape) {
-                        if(this.smoothing === 'temporal' || this.smoothing === 'both') {
+                        if(this.smoothing === 'temporal' || this.smoothing === 'both' || this.purification > 1) {
                             payoff = this.get("pixelValues")[otherSliderPosition];
                         }
                         else if(this.smoothing === 'spatial'){
@@ -363,6 +376,7 @@
 
             const payoffFunction = this.get('payoffFunction');
             const otherDecisions = this.get('otherDecisions');
+            const sampledDecisions = this.get('sampledDecisions');
 
             const radius = 8;
             //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
@@ -378,21 +392,21 @@
                     const interval = this.bandwidth/10;
                     let loops = 0;
                     for(let i = this.myDecision - this.bandwidth; i <= this.myDecision + this.bandwidth; i += interval) {
-                        y += payoffFunction(i, otherDecisions);
+                        y += payoffFunction(i, sampledDecisions) * this.purification;
                         loops++;
                     }
                     if(loops == 20) {
-                        y += payoffFunction(this.myDecision + this.bandwidth, otherDecisions)
+                        y += payoffFunction(this.myDecision + this.bandwidth, sampledDecisions) * this.purification;
                     }
                     y = y/21;
                     myPayoff = y;
                 }
                 else {
-                    myPayoff = payoffFunction(this.myDecision, otherDecisions);
+                    myPayoff = payoffFunction(this.myDecision, sampledDecisions) * this.purification;
                 }
             }
             else {
-                myPayoff = payoffFunction(this.myDecision, otherDecisions);
+                myPayoff = payoffFunction(this.myDecision, sampledDecisions) * this.purification;
             }
             const x = (this.myDecision - this.xMin) * this.xScale;
             const y = (this.yMax - myPayoff) * this.yScale;

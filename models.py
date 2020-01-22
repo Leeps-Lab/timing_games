@@ -45,6 +45,8 @@ def parse_config(config_file):
             'yMax': int(row['yMax']),
             'bandwidth': float(row['bandwidth']),
             'enable_bots': True if row['enable_bots'] == 'TRUE' else False,
+            'sample_size': int(row['sample_size']),
+            'constantE': int(row['constantE']),
         })
     return rounds
 
@@ -98,6 +100,12 @@ class Subsession(BaseSubsession):
 
     def enable_bots(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['enable_bots']
+
+    def sample_size(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['sample_size']
+
+    def constantE(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['constantE']
 
 
 class Group(DecisionGroup):
