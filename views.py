@@ -147,7 +147,6 @@ def get_output(events):
 
 
 page_sequence = [
-    Introduction,
     DecisionWaitPage,
     Decision,
     Results

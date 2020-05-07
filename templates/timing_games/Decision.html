@@ -3,10 +3,7 @@
 
 {% block scripts %}
     <script src="//code.highcharts.com/highcharts.js"></script>
-
-    <link
-        rel="import"
-        href="{% static "webcomponents/timing_games/timing-games.html" %}">
+    <script type="module" src="{% static '/webcomponents/timing_games/timing-games.js' %}"></script>
 {% endblock %}
 
 {% block title %}
@@ -19,9 +16,6 @@
         period-length='{{ player.group.period_length }}'
         {% if player.subsession.enable_payoff_landscape %}
         enable-payoff-landscape
-        {% endif %}
-        {% if player.subsession.enable_bots %}
-        bots
         {% endif %}
         others-bubbles='{{ player.subsession.others_bubbles }}'
         smoothing='{{ player.subsession.smoothing }}'
@@ -36,6 +30,8 @@
         rho='{{ player.group.rho }}'
         constant-h='{{ player.group.constantH }}'
         bandwidth='{{ player.group.bandwidth }}'
+        sample-size='{{ player.subsession.sample_size }}'
+        constant-e='{{ player.subsession.constantE }}'
         >
     </timing-games>
 

@@ -21,7 +21,7 @@ class Constants(BaseConstants):
     num_rounds = 100
     base_points = 0
 
-
+# parses config data from csv file
 def parse_config(config_file):
     with open('timing_games/configs/' + config_file) as f:
         rows = list(csv.DictReader(f))
@@ -44,11 +44,15 @@ def parse_config(config_file):
             'yMin': int(row['yMin']),
             'yMax': int(row['yMax']),
             'bandwidth': float(row['bandwidth']),
-            'enable_bots': True if row['enable_bots'] == 'TRUE' else False,
+            'sample_size': int(row['sample_size']),
+            'constantE': float(row['constantE']),
         })
     return rounds
 
-
+# the various config fields are spread out between subsession, group, and player
+# there isn't actually any difference between putting something in a particular
+# class over another, and the reasoning for putting them where they are is lost
+# to time
 class Subsession(BaseSubsession):
 
     def before_session_starts(self):
@@ -68,6 +72,7 @@ class Subsession(BaseSubsession):
             group_matrix.append(players[i:i+ppg])
         self.set_group_matrix(group_matrix)
 
+    # returns the average strategy for the whole session
     def get_average_strategy(self):
         players = self.get_players()
         sum_strategies = 0
@@ -75,6 +80,7 @@ class Subsession(BaseSubsession):
             sum_strategies += p.get_average_strategy()
         return sum_strategies / len(players)
 
+    # returns the average payoff for the whole session
     def get_average_payoff(self):
         players = self.get_players()
         sum_payoffs = 0
@@ -96,8 +102,11 @@ class Subsession(BaseSubsession):
     def players_per_group(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['players_per_group']
 
-    def enable_bots(self):
-        return parse_config(self.session.config['config_file'])[self.round_number-1]['enable_bots']
+    def sample_size(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['sample_size']
+
+    def constantE(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['constantE']
 
 
 class Group(DecisionGroup):
@@ -108,6 +117,7 @@ class Group(DecisionGroup):
     def period_length(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['period_length']
 
+    # lambda is a reserved word
     def constantLambda(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['lambda']
 
@@ -143,6 +153,7 @@ class Player(BasePlayer):
     init_decision = FloatField(null=True)
     ave_payoff = FloatField(null=True)
 
+    # sets initial decision to a random value within the x-axis bounds
     def initial_decision(self):
         if not self.init_decision:
             xMax = parse_config(self.session.config['config_file'])[self.round_number-1]['xMax']
@@ -151,6 +162,7 @@ class Player(BasePlayer):
             self.save()
         return self.init_decision
 
+    # gets the average strategy for this player
     def get_average_strategy(self):
         decisions = list(Event.objects.filter(
             channel='group_decisions',
@@ -174,6 +186,7 @@ class Player(BasePlayer):
                 (next_change_time - cur_decision.timestamp).total_seconds()
         return weighted_sum_decision / self.group.period_length()
 
+    # if a player does not have an average payoff yet, fetch it
     def set_payoff(self):
         decisions = list(Event.objects.filter(
             channel='decisions',
@@ -203,6 +216,7 @@ class Player(BasePlayer):
             period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho)
         self.save()
 
+    # gets average payoff for this player
     def get_payoff(self, period_start, period_end, decisions, numPlayers, constantLambda, gamma, rho):
         period_duration = period_end.timestamp - period_start.timestamp
         payoff = 0
