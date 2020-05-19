@@ -34,7 +34,7 @@ def parse_config(config_file):
             'enable_payoff_landscape': True if row['enablePayoffLandscape'] == 'TRUE' else False,
             'others_bubbles': str(row['others_bubbles']),
             'smoothing': str(row['smoothing']),
-            'lambda': int(row['lambda']),
+            'lambda': float(row['lambda']),
             'gamma': float(row['gamma']),
             'rho': float(row['rho']),
             'constantH': int(row['constantH']),
@@ -46,6 +46,7 @@ def parse_config(config_file):
             'bandwidth': float(row['bandwidth']),
             'sample_size': int(row['sample_size']),
             'constantE': float(row['constantE']),
+            'trembling': float(row['trembling']),
         })
     return rounds
 
@@ -107,6 +108,9 @@ class Subsession(BaseSubsession):
 
     def constantE(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['constantE']
+
+    def trembling(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['trembling']
 
 
 class Group(DecisionGroup):

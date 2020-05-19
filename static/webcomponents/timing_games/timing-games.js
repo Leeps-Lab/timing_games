@@ -47,6 +47,7 @@ export class TimingGames extends PolymerElement {
                     rho='[[ rho ]]'
                     constant-h='[[ constantH ]]'
                     purification='[[ purification ]]'
+                    trembling='[[ trembling ]]'
                     duration='[[ periodLength ]]'
                     enable-payoff-landscape='[[ enablePayoffLandscape ]]'
                     others-bubbles='[[ othersBubbles ]]'
@@ -162,6 +163,9 @@ export class TimingGames extends PolymerElement {
               value: null,
             },
             constantE: {
+              type: Number,
+            },
+            trembling: {
               type: Number,
             },
             purification: {

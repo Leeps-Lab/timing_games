@@ -34,3 +34,4 @@ Config fields (default otree-redwood functionality fields excluded):
     * both: Enables both types of smoothing
 * sample_size: Determines the number of players to sample from for landscape calculation (-1 for no sampling)
 * constantE: Constant for calculating purification (-1 for no purification)
+* trembling: Constant for trembling (-1 for no trembling)

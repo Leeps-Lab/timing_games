@@ -181,6 +181,9 @@ export class PolymerBubbles extends PolymerElement {
             purification: {
                 type: Number,
             },
+            trembling: {
+                type: Number,
+            },
             enablePayoffLandscape: {
                 type: Boolean,
                 value: false,
@@ -247,7 +250,7 @@ export class PolymerBubbles extends PolymerElement {
     }
 
     _sliderValueChanged(event) {
-        this.myDecision = parseFloat(event.target.value);
+        this.myDecision = parseFloat(event.target.value) + (Math.random() * this.trembling * 2 - this.trembling);
     }
 }
 
