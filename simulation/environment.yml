@@ -1,0 +1,6 @@
+name: simulation
+dependencies:
+  - python
+  - numpy
+  - matplotlib
+  - pandas
