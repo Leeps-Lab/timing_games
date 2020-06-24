@@ -60,7 +60,9 @@ def get_config_columns(group):
         config['yMax'],
         config['bandwidth'],
         config['smoothing'],
-        config['enable_bots'],
+        config['sample_size'],
+        config['constantE'],
+        config['trembling'],
     ]
 
 
@@ -94,7 +96,9 @@ def get_output_table_header(groups):
         'yMax',
         'bandwidth',
         'smoothing',
-        'enable_bots',
+        'sample_size',
+        'constantE',
+        'trembling',
     ]
     return header
 
