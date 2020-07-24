@@ -56,7 +56,7 @@ def parse_config(config_file):
 # to time
 class Subsession(BaseSubsession):
 
-    def before_session_starts(self):
+    def creating_session(self):
         config = parse_config(self.session.config['config_file'])
         if self.round_number > len(config):
             return

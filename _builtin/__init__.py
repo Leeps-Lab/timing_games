@@ -2,7 +2,6 @@
 from .. import models
 import otree.views
 import otree.test
-from otree.common import Currency as c, currency_range
 
 class Page(otree.views.Page):
     z_models = models
@@ -28,5 +27,3 @@ class Bot(otree.test.Bot):
         self.subsession = models.Subsession()
         self.group = models.Group()
         self.player = models.Player()
-
-

@@ -4,13 +4,13 @@ Timing Games project for oTree
 Session Config:
 
 ```
-{
-    'name': 'timing_games',
-    'display_name': "Timing Games",
-    'num_demo_participants': 4,
-    'app_sequence': ['timing_games', 'payment_info'],
-    'config_file': 'demo.csv',
-}
+dict(
+    name='timing_games',
+    display_name="Timing Games",
+    num_demo_participants=4,
+    app_sequence=['timing_games'],
+    config_file='demo.csv',
+)
 ```
 
 Config fields (default otree-redwood functionality fields excluded):
