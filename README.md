@@ -35,3 +35,6 @@ Config fields (default otree-redwood functionality fields excluded):
 * sample_size: Determines the number of players to sample from for landscape calculation (-1 for no sampling)
 * constantE: Constant for calculating purification (-1 for no purification)
 * trembling: Constant for trembling (-1 for no trembling)
+
+Easy access link for Jupyter-Notebook binder:
+https://mybinder.org/v2/gh/Leeps-Lab/timing_games/master
