@@ -30,6 +30,7 @@ def parse_config(config_file):
     for row in rows:
         rounds.append({
             'period_length': int(row['period_length']),
+            'num_subperiods': int(row['num_subperiods']),
             'players_per_group': int(row['players_per_group']),
             'enable_payoff_landscape': True if row['enablePayoffLandscape'] == 'TRUE' else False,
             'others_bubbles': str(row['others_bubbles']),
@@ -120,6 +121,9 @@ class Group(DecisionGroup):
 
     def period_length(self):
         return parse_config(self.session.config['config_file'])[self.round_number-1]['period_length']
+
+    def num_subperiods(self):
+        return parse_config(self.session.config['config_file'])[self.round_number-1]['num_subperiods']
 
     # lambda is a reserved word
     def constantLambda(self):

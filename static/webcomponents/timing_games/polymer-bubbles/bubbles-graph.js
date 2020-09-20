@@ -100,6 +100,10 @@ export class BubblesGraph extends PolymerElement {
                 type: Number,
                 observer: '_redrawGraph',
             },
+            myPlannedDecision: {
+                type: Number,
+                observer: '_redrawGraph',
+            },
             otherDecisions: {
                 type: Array,
             },
@@ -456,8 +460,8 @@ export class BubblesGraph extends PolymerElement {
         ctx.save();
         this._transformContext();
         ctx.beginPath();
-        ctx.moveTo(this.myDecision, 0);
-        ctx.lineTo(this.myDecision, this.yMax);
+        ctx.moveTo(this.myPlannedDecision, 0);
+        ctx.lineTo(this.myPlannedDecision, this.yMax);
         ctx.restore();
         ctx.strokeStyle = MY_COLOR;
         ctx.lineWidth = 2;
@@ -469,7 +473,7 @@ export class BubblesGraph extends PolymerElement {
 
         const radius = 8;
         //0.97 is necessary here due to the slider length not quite matching up with the length of the axis
-        const mySliderPosition = Math.round(((this.myDecision - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
+        const mySliderPosition = Math.round(((this.myPlannedDecision - this.get('minX'))/(this.xMax - this.get('minX')) * 598));
         let myPayoff;
         if(this.enablePayoffLandscape) {
             if(this.smoothing === 'temporal' || this.smoothing === 'both') {
@@ -479,24 +483,24 @@ export class BubblesGraph extends PolymerElement {
                 let y = 0;
                 const interval = this.bandwidth/10;
                 let loops = 0;
-                for(let i = this.myDecision - this.bandwidth; i <= this.myDecision + this.bandwidth; i += interval) {
+                for(let i = this.myPlannedDecision - this.bandwidth; i <= this.myPlannedDecision + this.bandwidth; i += interval) {
                     y += payoffFunction(i, sampledDecisions);
                     loops++;
                 }
                 if(loops == 20) {
-                    y += payoffFunction(this.myDecision + this.bandwidth, sampledDecisions);
+                    y += payoffFunction(this.myPlannedDecision + this.bandwidth, sampledDecisions);
                 }
                 y = y/21;
                 myPayoff = y;
             }
             else {
-                myPayoff = payoffFunction(this.myDecision, sampledDecisions);
+                myPayoff = payoffFunction(this.myPlannedDecision, sampledDecisions);
             }
         }
         else {
-            myPayoff = payoffFunction(this.myDecision, sampledDecisions);
+            myPayoff = payoffFunction(this.myPlannedDecision, sampledDecisions);
         }
-        const x = (this.myDecision - this.xMin) * this.xScale;
+        const x = (this.myPlannedDecision - this.xMin) * this.xScale;
         const y = (this.yMax - myPayoff) * this.yScale;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, 2 * Math.PI);

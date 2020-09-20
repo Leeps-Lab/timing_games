@@ -148,6 +148,10 @@ export class PolymerBubbles extends PolymerElement {
                     };
                 },
             },
+            numSubperiods: {
+                type: Number,
+                value: 0,
+            },
             sampledDecisions: {
                 type: Array,
             },
@@ -250,7 +254,7 @@ export class PolymerBubbles extends PolymerElement {
     }
 
     _sliderValueChanged(event) {
-        this.myDecision = parseFloat(event.target.value) + (Math.random() * this.trembling * 2 - this.trembling);
+        this.myPlannedDecision = parseFloat(event.target.value) + (Math.random() * this.trembling * 2 - this.trembling);
     }
 }
 

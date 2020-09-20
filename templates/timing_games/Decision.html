@@ -17,6 +17,9 @@
         {% if player.subsession.enable_payoff_landscape %}
         enable-payoff-landscape
         {% endif %}
+        {% if player.group.num_subperiods %}
+        num-subperiods='{{ player.group.num_subperiods }}'
+        {% endif %}
         others-bubbles='{{ player.subsession.others_bubbles }}'
         smoothing='{{ player.subsession.smoothing }}'
         update-rate='{{ player.group.updateRate }}'
